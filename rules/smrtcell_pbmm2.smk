@@ -1,0 +1,77 @@
+import tempfile
+
+
+ruleorder: pbmm2_align_ubam > pbmm2_align_fastq
+
+
+rule pbmm2_align_ubam:
+    input:
+        reference = config['ref']['fasta'],
+        ref_index = config['ref']['index'],
+        query = lambda wildcards: ubam_dict[wildcards.sample][wildcards.movie]
+    output:
+        bam = f"samples/{{sample}}/aligned/{{movie}}.{ref}.bam",
+        bai = f"samples/{{sample}}/aligned/{{movie}}.{ref}.bam.bai"
+    log: f"samples/{{sample}}/logs/pbmm2/align/{{movie}}.{ref}.log"
+    benchmark: f"samples/{{sample}}/benchmarks/pbmm2/align/{{movie}}.{ref}.tsv"
+    params:
+        sample = lambda wildcards: wildcards.sample,
+        tmp_root = "/scratch",
+        preset = "CCS",
+        extra = "--sort --unmapped -c 0 -y 70",
+        loglevel = "INFO"
+    threads: 24
+    conda: "envs/pbmm2.yaml"
+    message: "Executing {rule}: Aligning {input.query} to {input.reference} using pbmm2 with --preset {params.preset} {params.extra}."
+    run:
+        with tempfile.TemporaryDirectory(dir=tmp_root) as tmp_dir:
+            shell(
+                """
+                (TMPDIR={params.tmp_root}; \
+                pbmm2 align --num-threads {threads} \
+                    --preset {params.preset} \
+                    --sample {params.sample} \
+                    --log-level {params.loglevel} \
+                    {params.extra} \
+                    {input.reference} \
+                    {input.query} \
+                    {output.bam}) > {log} 2>&1
+                """
+            )
+
+
+
+rule pbmm2_align_fastq:
+    input:
+        reference = config['ref']['fasta'],
+        ref_index = config['ref']['index'],
+        query = lambda wildcards: fastq_dict[wildcards.sample][wildcards.movie]
+    output:
+        bam = f"samples/{{sample}}/aligned/{{movie}}.{ref}.bam",
+        bai = f"samples/{{sample}}/aligned/{{movie}}.{ref}.bam.bai"
+    log: f"samples/{{sample}}/logs/pbmm2/align/{{movie}}.{ref}.log"
+    benchmark: f"samples/{{sample}}/benchmarks/pbmm2/align/{{movie}}.{ref}.tsv"
+    params:
+        sample = lambda wildcards: wildcards.sample,
+        tmp_root = "/scratch",
+        preset = "CCS",
+        extra = "--sort --unmapped -c 0 -y 70",
+        loglevel = "INFO"
+    threads: 24
+    conda: "envs/pbmm2.yaml"
+    message: "Executing {rule}: Aligning {input.query} to {input.reference} using pbmm2 with --preset {params.preset} {params.extra}."
+    run:
+        with tempfile.TemporaryDirectory(dir=tmp_root) as tmp_dir:
+            shell(
+                """
+                (TMPDIR={params.tmp_root}; \
+                pbmm2 align --num-threads {threads} \
+                    --preset {params.preset} \
+                    --sample {params.sample} \
+                    --log-level {params.loglevel} \
+                    {params.extra} \
+                    {input.reference} \
+                    {input.query} \
+                    {output.bam}) > {log} 2>&1
+                """
+            )
