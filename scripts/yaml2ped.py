@@ -54,8 +54,8 @@ def parse_yaml(args):
                 else:
                     ind_sex = '.'
                 # assume that maternal_id is always listed first in parents
-                if 'parents' in cohort[phenotype][individual] \
-                        and len(cohort[phenotype][individual]['parents'] == 2):
+                if ('parents' in cohort[phenotype][individual]) \
+                        and (len(cohort[phenotype][individual]['parents']) == 2):
                     mat_id = cohort[phenotype][individual]['parents'][0]
                     pat_id = cohort[phenotype][individual]['parents'][1]
                 else:

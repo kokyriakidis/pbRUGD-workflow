@@ -17,14 +17,16 @@ rule glnexus:
 
 
 rule split_glnexus_vcf:
-    input: f"cohorts/{cohort}/glnexus/{cohort}.{ref}.glnexus.vcf.gz",
-    output: temp(f"cohorts/{cohort}/whatshap/{cohort}.{ref}.regions/{cohort}.{ref}.{{region}}.glnexus.vcf")
+    input:
+        vcf = f"cohorts/{cohort}/glnexus/{cohort}.{ref}.glnexus.vcf.gz",
+        tbi = f"cohorts/{cohort}/glnexus/{cohort}.{ref}.glnexus.vcf.gz.tbi"
+    output: temp(f"cohorts/{cohort}/whatshap/{cohort}.{ref}.regions/{cohort}.{ref}.{{region}}.deepvariant.vcf")
     log: f"cohorts/{cohort}/logs/tabix/query/{cohort}.{ref}.{{region}}.glnexus.vcf.log"
     benchmark: f"cohorts/{cohort}/benchmarks/tabix/query/{cohort}.{ref}.{{region}}.glnexus.vcf.tsv"
     params: region = lambda wildcards: wildcards.region, extra = '-h'
     conda: "envs/htslib.yaml"
     message: "Executing {rule}: Extracting {wildcards.region} variants from {input}."
-    shell: "tabix {params.extra} {input} {params.region} > {output} 2> {log}"
+    shell: "tabix {params.extra} {input.vcf} {params.region} > {output} 2> {log}"
 
 
 rule whatshap_phase:
@@ -102,9 +104,10 @@ rule link_phased_vcf:
         tbi = f"cohorts/{cohort}/{cohort}.{ref}.deepvariant.phased.vcf.gz.tbi"
     message: "Linking joint-called, phased vcf to {output.vcf}."
     run:
+        to_link = [(input.vcf, output.vcf), (input.tbi, output.tbi)]
         for src, dst in to_link:
             if not os.path.exists(dst):
-                os.symlink(("/").join(src.split('/')[3:]), dst)
+                os.symlink(("/").join(src.split('/')[2:]), dst)
 
 
 # TODO

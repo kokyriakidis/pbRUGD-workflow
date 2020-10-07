@@ -50,7 +50,7 @@ abam_list = []
 for infile in Path(f"samples").glob('**/aligned/*.bam'):
     match = pattern.search(str(infile))
     if match and (match.group('sample') in samples) and (match.group('reference') == ref):
-        movie_dict[match.group('sample')].append([match.group('movie')])
+        movie_dict[match.group('sample')].append(match.group('movie'))
         abam_list.append(infile)
 gvcf_list = [f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.g.vcf.gz" for sample in samples]
 
@@ -77,6 +77,7 @@ targets.extend([f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.{infix}.{su
                 for suffix in ['vcf.gz', 'vcf.gz.tbi', 'tsv']])
 
 
+ruleorder: split_glnexus_vcf > bcftools_bcf2vcf
 localrules: all, md5sum
 
 

@@ -51,9 +51,10 @@ rule link_pbsv_vcf:
         tbi = f"cohorts/{cohort}/{cohort}.{ref}.pbsv.vcf.gz.tbi"
     message: "Linking joint-called vcf to {output.vcf}."
     run:
+        to_link = [(input.vcf, output.vcf), (input.tbi, output.tbi)]
         for src, dst in to_link:
             if not os.path.exists(dst):
-                os.symlink(("/").join(src.split('/')[3:]), dst)
+                os.symlink(("/").join(src.split('/')[2:]), dst)
 
 
 # TODO
