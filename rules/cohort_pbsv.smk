@@ -1,15 +1,11 @@
-def list_svsigs(region):
-    """Given a region, return all cohort svsig files from this region."""
-    return [f"samples/{sample}/pbsv/svsig/{movie}.{ref}.{region}.svsig.gz" for sample in samples
-            for movie in movie_dict[sample]]
+# svsig_dict[chrom] = list of svsigs for all movies for all samples for given chrom
 
-
-localrules: bcftools_concat_pbsv_vcf, cleanup_pbsv_intermediates
+localrules: bcftools_concat_pbsv_vcf
 
 
 rule pbsv_call:
     input:
-        svsigs = lambda wildcards: list_svsigs(wildcards.region),
+        svsigs = lambda wildcards: svsig_dict[wildcards.region],
         reference = config['ref']['fasta']
     output: temp(f"cohorts/{cohort}/pbsv/{cohort}.{ref}.chrom_vcfs/{cohort}.{ref}.{{region}}.pbsv.vcf")
     log: f"cohorts/{cohort}/logs/pbsv/call/{cohort}.{ref}.{{region}}.log"
@@ -40,26 +36,3 @@ rule bcftools_concat_pbsv_vcf:
     conda: "envs/bcftools.yaml"
     message: "Executing {rule}: Concatenating pbsv VCFs: {input.calls}"
     shell: "bcftools concat -a -o {output} {input.calls}"
-
-
-rule link_pbsv_vcf:
-    input:
-        vcf = f"cohorts/{cohort}/pbsv/{cohort}.{ref}.pbsv.vcf.gz",
-        tbi = f"cohorts/{cohort}/pbsv/{cohort}.{ref}.pbsv.vcf.gz.tbi"
-    output:
-        vcf = f"cohorts/{cohort}/{cohort}.{ref}.pbsv.vcf.gz",
-        tbi = f"cohorts/{cohort}/{cohort}.{ref}.pbsv.vcf.gz.tbi"
-    message: "Linking joint-called vcf to {output.vcf}."
-    run:
-        to_link = [(input.vcf, output.vcf), (input.tbi, output.tbi)]
-        for src, dst in to_link:
-            if not os.path.exists(dst):
-                os.symlink(("/").join(src.split('/')[2:]), dst)
-
-
-# TODO
-# rule cleanup_pbsv_intermediates:
-#     input: f"cohorts/{cohort}/{cohort}.{ref}.pbsv.vcf.gz"
-#     output: touch(f"cohorts/{cohort}/pbsv/{cohort}.{ref}.removed_intermediates.txt")
-#     message: f"Executing {{rule}}: Removing intermediate folder for {cohort}."
-#     shell: f"rm -rf cohorts/{cohort}/pbsv/{cohort}.{ref}.chrom_vcfs/"

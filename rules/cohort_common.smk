@@ -1,17 +1,4 @@
 localrules: bgzip_vcf, tabix_vcf, tabix_bcf, create_ped
-ruleorder: bgzip_vcf > bcftools_bcf2vcf
-
-
-rule bcftools_bcf2vcf:
-    input: f"cohorts/{cohort}/{{prefix}}.bcf"
-    output: f"cohorts/{cohort}/{{prefix}}.vcf.gz"
-    log: f"cohorts/{cohort}/logs/bcftools/view/{{prefix}}.log"
-    benchmark: f"cohorts/{cohort}/benchmarks/bcftools/view/{{prefix}}.tsv"
-    params: "--threads 4 -Oz"
-    threads: 4
-    conda: "envs/bcftools.yaml"
-    message: "Executing {rule}: Converting GLnexus BCF to VCF for {input}."
-    shell: "(bcftools view {params} {input} -o {output}) > {log} 2>&1"
 
 
 rule bgzip_vcf:

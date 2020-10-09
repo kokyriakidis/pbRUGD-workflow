@@ -7,40 +7,29 @@ from collections import defaultdict
 shell.prefix("set -o pipefail; umask 002; ")           # set g+w
 configfile: "workflow/reference.yaml"                  # reference information
 configfile: "workflow/config.yaml"                     # general configuration
-configfile: "100humans-data/cohorts/all_as_dict.yaml"  # list of all cohorts and samples TODO
-
-all_chroms = config['ref']['autosomes'] + config['ref']['sex_chrom'] + config['ref']['mit_chrom']
+configfile: "100humans-data/cohorts/all_as_dict.yaml"  # list of all cohorts and samples TODO: config
 
 # cohort will be provided at command line with `--config cohort=$COHORT`
 cohort = config['cohort']
 ref = config['ref']['shortname']
+all_chroms = config['ref']['autosomes'] + config['ref']['sex_chrom'] + config['ref']['mit_chrom']
 samples = []
 print(f"Processing cohort {cohort} with reference {ref}.")
+
+if not cohort in config:
+    print(f"{cohort} not listed in valid cohorts.") and exit
 
 # find all samples in cohort
 for status in ("affecteds", "unaffecteds"):
     if status in config[cohort]:
         samples.extend([s['id'] for s in config[cohort][status]])
-singleton = False
+
 if len(samples) == 0:
-    print(f"No samples in {cohort}.")
+    print(f"No samples in {cohort}.") and exit
 elif len(samples) == 1:
     singleton = True
-    # for singletons, use the VCFs from the sample folder
-    # link sample pbsv and deepvariant vcfs into cohort folder
-    to_link = [
-        (f"samples/{samples[0]}/pbsv/{samples[0]}.{ref}.pbsv.vcf.gz",
-         f"cohorts/{cohort}/{cohort}.{ref}.pbsv.vcf.gz"),
-        (f"samples/{samples[0]}/pbsv/{samples[0]}.{ref}.pbsv.vcf.gz.tbi",
-         f"cohorts/{cohort}/{cohort}.{ref}.pbsv.vcf.gz.tbi"),
-        (f"samples/{samples[0]}/whatshap/{samples[0]}.{ref}.deepvariant.phased.vcf.gz",
-         f"cohorts/{cohort}/{cohort}.{ref}.deepvariant.phased.vcf.gz"),
-        (f"samples/{samples[0]}/whatshap/{samples[0]}.{ref}.deepvariant.phased.vcf.gz.tbi",
-         f"cohorts/{cohort}/{cohort}.{ref}.deepvariant.phased.vcf.gz.tbi")
-    ]
-    for src, dst in to_link:
-        if not os.path.exists(dst):
-            os.symlink("../../" + src, dst)
+else:
+    singleton = False
 print(f"Samples in cohort: {samples}.")
 
 # scan samples/*/aligned to generate a dict-of-lists-of-movies for 
@@ -52,7 +41,22 @@ for infile in Path(f"samples").glob('**/aligned/*.bam'):
     if match and (match.group('sample') in samples) and (match.group('reference') == ref):
         movie_dict[match.group('sample')].append(match.group('movie'))
         abam_list.append(infile)
-gvcf_list = [f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.g.vcf.gz" for sample in samples]
+
+# singletons and cohorts provide different input to slivar and svpack
+if singleton:
+    # use the sample level VCFs
+    slivar_input = f"samples/{samples[0]}/whatshap/{samples[0]}.{ref}.deepvariant.phased.vcf.gz"
+    svpack_input = f"samples/{samples[0]}/pbsv/{samples[0]}.{ref}.pbsv.vcf.gz"
+else:
+    # generate joint-called VCFs
+    slivar_input = f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.glnexus.phased.vcf.gz"
+    svpack_input = f"cohorts/{cohort}/pbsv/{cohort}.{ref}.pbsv.vcf.gz"
+    gvcf_list = [f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.g.vcf.gz" for sample in samples]
+    svsig_dict = {region: [f"samples/{sample}/pbsv/svsig/{movie}.{ref}.{region}.svsig.gz"
+                           for sample in samples
+                           for movie in movie_dict[sample]]
+                  for region in all_chroms}
+
 
 # build a list of targets
 targets = []
@@ -60,24 +64,22 @@ include: 'rules/cohort_common.smk'
 
 # generate a cohort level pbsv vcf
 include: 'rules/cohort_pbsv.smk'
-targets.extend([f"cohorts/{cohort}/{cohort}.{ref}.pbsv.{suffix}"
-                for suffix in ['vcf.gz', 'vcf.gz.tbi']])
+targets.extend([svpack_input, svpack_input + '.tbi'])
 
 # TODO: annotate and filter pbsv vcf
 
 # generate a cohort level deepvariant vcf
 include: 'rules/cohort_glnexus.smk'
-targets.extend([f"cohorts/{cohort}/{cohort}.{ref}.deepvariant.phased.{suffix}"
-                for suffix in ['vcf.gz', 'vcf.gz.tbi']])
+targets.extend([slivar_input, slivar_input + '.tbi'])
 
 # annotate and filter deepvariant vcf
 include: 'rules/cohort_slivar.smk'
-targets.extend([f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.{infix}.{suffix}"
+targets.extend([f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.{infix}.{suffix}"
                 for infix in ['slivar', 'slivar.compound-hets']
                 for suffix in ['vcf.gz', 'vcf.gz.tbi', 'tsv']])
 
 
-ruleorder: split_glnexus_vcf > bcftools_bcf2vcf
+ruleorder: split_glnexus_vcf > whatshap_phase > whatshap_bcftools_concat > bcftools_bcf2vcf > bgzip_vcf
 localrules: all, md5sum
 
 
@@ -90,5 +92,3 @@ rule md5sum:
     output: "{prefix}.md5"
     message: "Creating md5 checksum for {input}."
     shell: "md5sum {input} > {output}"
-
-

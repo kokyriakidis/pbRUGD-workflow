@@ -1,8 +1,12 @@
+# gvcf_list -> list of g.vcf.gz for all samples
+
 rule glnexus:
-    input: gvcf_list
+    input:
+        gvcf = gvcf_list,
+        tbi = [f"{x}.tbi" for x in gvcf_list]
     output:
-        bcf = temp(f"cohorts/{cohort}/glnexus/{cohort}.{ref}.glnexus.bcf"),
-        scratch_dir = temp(f"cohorts/{cohort}/glnexus/{cohort}.{ref}.GLnexus.DB/")
+        bcf = temp(f"cohorts/{cohort}/glnexus/{cohort}.{ref}.deepvariant.glnexus.bcf"),
+        scratch_dir = temp(directory(f"cohorts/{cohort}/glnexus/{cohort}.{ref}.GLnexus.DB/"))
     log: f"cohorts/{cohort}/logs/glnexus/{cohort}.{ref}.log"
     benchmark: f"cohorts/{cohort}/benchmarks/glnexus/{cohort}.{ref}.tsv"
     container: f"docker://quay.io/mlin/glnexus:{config['GLNEXUS_VERSION']}"
@@ -10,17 +14,30 @@ rule glnexus:
     message: f"Executing {{rule}}: Joint calling variants from {cohort} cohort."
     shell:
         """
-        (glnexus_cli --threads {threads} \
+        (rm -rf {output.scratch_dir} && \
+        glnexus_cli --threads {threads} \
             --dir {output.scratch_dir} \
-            --config DeepVariant {input} > {output.bcf}) 2> {log}
+            --config DeepVariant_unfiltered {input.gvcf} > {output.bcf}) 2> {log}
         """
+
+
+rule bcftools_bcf2vcf:
+    input: f"cohorts/{cohort}/glnexus/{{prefix}}.bcf"
+    output: f"cohorts/{cohort}/glnexus/{{prefix}}.vcf.gz"
+    log: f"cohorts/{cohort}/logs/bcftools/view/glnexus/{{prefix}}.log"
+    benchmark: f"cohorts/{cohort}/benchmarks/bcftools/view/glnexus/{{prefix}}.tsv"
+    params: "--threads 4 -Oz"
+    threads: 4
+    conda: "envs/bcftools.yaml"
+    message: "Executing {rule}: Converting GLnexus BCF to VCF for {input}."
+    shell: "(bcftools view {params} {input} -o {output}) > {log} 2>&1"
 
 
 rule split_glnexus_vcf:
     input:
-        vcf = f"cohorts/{cohort}/glnexus/{cohort}.{ref}.glnexus.vcf.gz",
-        tbi = f"cohorts/{cohort}/glnexus/{cohort}.{ref}.glnexus.vcf.gz.tbi"
-    output: temp(f"cohorts/{cohort}/whatshap/{cohort}.{ref}.regions/{cohort}.{ref}.{{region}}.deepvariant.vcf")
+        vcf = f"cohorts/{cohort}/glnexus/{cohort}.{ref}.deepvariant.glnexus.vcf.gz",
+        tbi = f"cohorts/{cohort}/glnexus/{cohort}.{ref}.deepvariant.glnexus.vcf.gz.tbi"
+    output: temp(f"cohorts/{cohort}/whatshap/regions/{cohort}.{ref}.{{region}}.deepvariant.glnexus.vcf")
     log: f"cohorts/{cohort}/logs/tabix/query/{cohort}.{ref}.{{region}}.glnexus.vcf.log"
     benchmark: f"cohorts/{cohort}/benchmarks/tabix/query/{cohort}.{ref}.{{region}}.glnexus.vcf.tsv"
     params: region = lambda wildcards: wildcards.region, extra = '-h'
@@ -32,11 +49,11 @@ rule split_glnexus_vcf:
 rule whatshap_phase:
     input:
         reference = config['ref']['fasta'],
-        vcf = f"cohorts/{cohort}/whatshap/{cohort}.{ref}.regions/{cohort}.{ref}.{{chromosome}}.deepvariant.vcf.gz",
-        tbi = f"cohorts/{cohort}/whatshap/{cohort}.{ref}.regions/{cohort}.{ref}.{{chromosome}}.deepvariant.vcf.gz.tbi",
+        vcf = f"cohorts/{cohort}/whatshap/regions/{cohort}.{ref}.{{chromosome}}.deepvariant.glnexus.vcf.gz",
+        tbi = f"cohorts/{cohort}/whatshap/regions/{cohort}.{ref}.{{chromosome}}.deepvariant.glnexus.vcf.gz.tbi",
         phaseinput = abam_list,
         phaseinputindex = [f"{x}.bai" for x in abam_list]
-    output: temp(f"cohorts/{cohort}/whatshap/{cohort}.{ref}.regions/{cohort}.{ref}.{{chromosome}}.deepvariant.phased.vcf.gz")
+    output: temp(f"cohorts/{cohort}/whatshap/regions/{cohort}.{ref}.{{chromosome}}.deepvariant.glnexus.phased.vcf.gz")
     log: f"cohorts/{cohort}/logs/whatshap/phase/{cohort}.{ref}.{{chromosome}}.log"
     benchmark: f"cohorts/{cohort}/benchmarks/whatshap/phase/{cohort}.{ref}.{{chromosome}}.tsv"
     params:
@@ -60,9 +77,9 @@ rule whatshap_phase:
 
 rule whatshap_bcftools_concat:
     input:
-        calls = expand(f"cohorts/{cohort}/whatshap/{cohort}.{ref}.regions/{cohort}.{ref}.{{region}}.deepvariant.phased.vcf.gz", region=all_chroms),
-        indices = expand(f"cohorts/{cohort}/whatshap/{cohort}.{ref}.regions/{cohort}.{ref}.{{region}}.deepvariant.phased.vcf.gz.tbi", region=all_chroms)
-    output: f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.phased.vcf.gz"
+        calls = expand(f"cohorts/{cohort}/whatshap/regions/{cohort}.{ref}.{{region}}.deepvariant.glnexus.phased.vcf.gz", region=all_chroms),
+        indices = expand(f"cohorts/{cohort}/whatshap/regions/{cohort}.{ref}.{{region}}.deepvariant.glnexus.phased.vcf.gz.tbi", region=all_chroms)
+    output: f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.glnexus.phased.vcf.gz"
     log: f"cohorts/{cohort}/logs/bcftools/concat/{cohort}.{ref}.whatshap.log"
     benchmark: f"cohorts/{cohort}/benchmarks/bcftools/concat/{cohort}.{ref}.whatshap.tsv"
     params: "-a -Oz"
@@ -73,13 +90,13 @@ rule whatshap_bcftools_concat:
 
 rule whatshap_stats:
     input:
-        vcf = f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.phased.vcf.gz",
-        tbi = f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.phased.vcf.gz.tbi",
+        vcf = f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.glnexus.phased.vcf.gz",
+        tbi = f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.glnexus.phased.vcf.gz.tbi",
         chr_lengths = config['ref']['chr_lengths']
     output:
-        gtf = f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.phased.gtf",
-        tsv = f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.phased.tsv",
-        blocklist = f"cohorts/{cohort}//whatshap/{cohort}.{ref}.deepvariant.phased.blocklist"
+        gtf = f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.glnexus.phased.gtf",
+        tsv = f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.glnexus.phased.tsv",
+        blocklist = f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.glnexus.phased.blocklist"
     log: f"cohorts/{cohort}/logs/whatshap/stats/{cohort}.{ref}.log"
     benchmark: f"cohorts/{cohort}/benchmarks/whatshap/stats/{cohort}.{ref}.tsv"
     conda: "envs/whatshap.yaml"
@@ -95,21 +112,6 @@ rule whatshap_stats:
         """
 
 
-rule link_phased_vcf:
-    input:
-        vcf = f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.phased.vcf.gz",
-        tbi = f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.phased.vcf.gz.tbi"
-    output:
-        vcf = f"cohorts/{cohort}/{cohort}.{ref}.deepvariant.phased.vcf.gz",
-        tbi = f"cohorts/{cohort}/{cohort}.{ref}.deepvariant.phased.vcf.gz.tbi"
-    message: "Linking joint-called, phased vcf to {output.vcf}."
-    run:
-        to_link = [(input.vcf, output.vcf), (input.tbi, output.tbi)]
-        for src, dst in to_link:
-            if not os.path.exists(dst):
-                os.symlink(("/").join(src.split('/')[2:]), dst)
-
-
 # TODO
 # rule cleanup_whatshap_intermediates:
 #     input: f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.haplotagged.bam"
@@ -117,5 +119,5 @@ rule link_phased_vcf:
 #     message: f"Executing {{rule}}: Removing intermediate files for {cohort}."
 #     shell:
 #         f"""
-#         rm -rf cohorts/{cohort}/whatshap/{cohort}.{ref}.regions/
+#         rm -rf cohorts/{cohort}/whatshap/regions/
 #         """

@@ -37,11 +37,11 @@ rule generate_clinvar_lookup:
 
 rule bcftools_norm:
     input:
-        vcf = f"cohorts/{cohort}/{cohort}.{ref}.deepvariant.phased.vcf.gz",
-        tbi = f"cohorts/{cohort}/{cohort}.{ref}.deepvariant.phased.vcf.gz.tbi"
-    output: temp(f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.norm.bcf")
-    log: f"cohorts/{cohort}/logs/bcftools/norm/{cohort}.{ref}.deepvariant.vcf.log"
-    benchmark: f"cohorts/{cohort}/benchmarks/bcftools/norm/{cohort}.{ref}.deepvariant.vcf.tsv"
+        vcf = slivar_input,
+        tbi = slivar_input + ".tbi"
+    output: temp(f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.norm.bcf")
+    log: f"cohorts/{cohort}/logs/bcftools/norm/{cohort}.{ref}.deepvariant.phased.vcf.log"
+    benchmark: f"cohorts/{cohort}/benchmarks/bcftools/norm/{cohort}.{ref}.deepvariant.phased.vcf.tsv"
     params: f"--multiallelics - --output-type b --fasta-ref {config['ref']['fasta']}"
     conda: "envs/bcftools.yaml"
     message: "Executing {rule}: Splitting multiallelic sites and normalizing indels for {input.vcf}."
@@ -72,17 +72,17 @@ else:
 
 rule slivar_small_variant:
     input:
-        bcf = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.norm.bcf",
-        csi = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.norm.bcf.csi",
+        bcf = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.norm.bcf",
+        csi = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.norm.bcf.csi",
         ped = f"cohorts/{cohort}/{cohort}.ped",
         gnomad_af = {config['ref']['gnomad_gnotate']},
         hprc_af = {config['ref']['hprc_dv_gnotate']},
         js = config['slivar_js'],
         gff = config['ref']['ensembl_gff'],
         ref = config['ref']['fasta']
-    output: f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.slivar.vcf"
-    log: f"cohorts/{cohort}/logs/slivar/filter/{cohort}.{ref}.deepvariant.slivar.vcf.log"
-    benchmark: f"cohorts/{cohort}/benchmarks/slivar/filter/{cohort}.{ref}.deepvariant.slivar.tsv"
+    output: f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.slivar.vcf"
+    log: f"cohorts/{cohort}/logs/slivar/filter/{cohort}.{ref}.deepvariant.phased.slivar.vcf.log"
+    benchmark: f"cohorts/{cohort}/benchmarks/slivar/filter/{cohort}.{ref}.deepvariant.phased.slivar.tsv"
     params: filters = slivar_filters
     conda: "envs/slivar.yaml"
     message: "Executing {rule}: Annotating {input.bcf} and applying filters."
@@ -118,13 +118,13 @@ skip_list = [
 
 rule slivar_compound_hets:
     input: 
-        vcf = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.slivar.vcf.gz",
-        tbi = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.slivar.vcf.gz.tbi",
+        vcf = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.slivar.vcf.gz",
+        tbi = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.slivar.vcf.gz.tbi",
         ped = f"cohorts/{cohort}/{cohort}.ped"
     output:
-        vcf = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.slivar.compound-hets.vcf"
-    log: f"cohorts/{cohort}/logs/slivar/compound-hets/{cohort}.{ref}.deepvariant.slivar.compound-hets.vcf.log"
-    benchmark: f"cohorts/{cohort}/benchmarks/slivar/compound-hets/{cohort}.{ref}.deepvariant.slivar.compound-hets.vcf.tsv"
+        vcf = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.slivar.compound-hets.vcf"
+    log: f"cohorts/{cohort}/logs/slivar/compound-hets/{cohort}.{ref}.deepvariant.phased.slivar.compound-hets.vcf.log"
+    benchmark: f"cohorts/{cohort}/benchmarks/slivar/compound-hets/{cohort}.{ref}.deepvariant.phased.slivar.compound-hets.vcf.tsv"
     params: skip = ",".join(skip_list)
     conda: "envs/slivar.yaml"
     message: f"Executing {{rule}}: Finding compound hets in {cohort}."
@@ -153,14 +153,14 @@ info_fields = [
 
 rule slivar_tsv:
     input:
-        filt_vcf = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.slivar.vcf.gz",
-        comphet_vcf = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.slivar.compound-hets.vcf.gz",
+        filt_vcf = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.slivar.vcf.gz",
+        comphet_vcf = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.slivar.compound-hets.vcf.gz",
         ped = f"cohorts/{cohort}/{cohort}.ped",
         lof_lookup = config['lof_lookup'],
         clinvar_lookup = config['clinvar_lookup']
     output:
-        filt_tsv = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.slivar.tsv",
-        comphet_tsv = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.slivar.compound-hets.tsv"
+        filt_tsv = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.slivar.tsv",
+        comphet_tsv = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.slivar.compound-hets.tsv"
     log: f"cohorts/{cohort}/logs/slivar/tsv/{cohort}.{ref}.log"
     benchmark: f"cohorts/{cohort}/benchmarks/slivar/tsv/{cohort}.{ref}.tsv"
     params: info = "".join([f"--info-field {x} " for x in info_fields])
