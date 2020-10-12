@@ -54,7 +54,7 @@ targets.extend([f"samples/{sample}/aligned/{movie}.{ref}.{suffix}"
                 for movie in list(fastq_dict[sample].keys())]) # aBAMs from FASTQs
 
 # calculate coverage with mosdepth
-include: 'rules/smrcell_mosdepth.smk'
+include: 'rules/smrtcell_mosdepth.smk'
 targets.extend([f"samples/{sample}/mosdepth/{movie}.{ref}.{suffix}"
                 for suffix in ['mosdepth.global.dist.txt', 'mosdepth.region.dist.txt',
                                'mosdepth.summary.txt', 'regions.bed.gz']
