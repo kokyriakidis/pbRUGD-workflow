@@ -16,28 +16,23 @@ rule pbmm2_align_ubam:
     benchmark: f"samples/{{sample}}/benchmarks/pbmm2/align/{{movie}}.{ref}.tsv"
     params:
         sample = lambda wildcards: wildcards.sample,
-        tmp_root = "/scratch",
         preset = "CCS",
         extra = "--sort --unmapped -c 0 -y 70",
         loglevel = "INFO"
     threads: 24
     conda: "envs/pbmm2.yaml"
     message: "Executing {rule}: Aligning {input.query} to {input.reference} using pbmm2 with --preset {params.preset} {params.extra}."
-    run:
-        with tempfile.TemporaryDirectory(dir=tmp_root) as tmp_dir:
-            shell(
-                """
-                (TMPDIR={params.tmp_root}; \
-                pbmm2 align --num-threads {threads} \
-                    --preset {params.preset} \
-                    --sample {params.sample} \
-                    --log-level {params.loglevel} \
-                    {params.extra} \
-                    {input.reference} \
-                    {input.query} \
-                    {output.bam}) > {log} 2>&1
-                """
-            )
+    shell:
+        """
+        (pbmm2 align --num-threads {threads} \
+            --preset {params.preset} \
+            --sample {params.sample} \
+            --log-level {params.loglevel} \
+            {params.extra} \
+            {input.reference} \
+            {input.query} \
+            {output.bam}) > {log} 2>&1
+        """
 
 
 
@@ -53,25 +48,20 @@ rule pbmm2_align_fastq:
     benchmark: f"samples/{{sample}}/benchmarks/pbmm2/align/{{movie}}.{ref}.tsv"
     params:
         sample = lambda wildcards: wildcards.sample,
-        tmp_root = "/scratch",
         preset = "CCS",
         extra = "--sort --unmapped -c 0 -y 70",
         loglevel = "INFO"
     threads: 24
     conda: "envs/pbmm2.yaml"
     message: "Executing {rule}: Aligning {input.query} to {input.reference} using pbmm2 with --preset {params.preset} {params.extra}."
-    run:
-        with tempfile.TemporaryDirectory(dir=tmp_root) as tmp_dir:
-            shell(
-                """
-                (TMPDIR={params.tmp_root}; \
-                pbmm2 align --num-threads {threads} \
-                    --preset {params.preset} \
-                    --sample {params.sample} \
-                    --log-level {params.loglevel} \
-                    {params.extra} \
-                    {input.reference} \
-                    {input.query} \
-                    {output.bam}) > {log} 2>&1
-                """
-            )
+    shell:
+        """
+        (pbmm2 align --num-threads {threads} \
+            --preset {params.preset} \
+            --sample {params.sample} \
+            --log-level {params.loglevel} \
+            {params.extra} \
+            {input.reference} \
+            {input.query} \
+            {output.bam}) > {log} 2>&1
+        """
