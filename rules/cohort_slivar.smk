@@ -84,11 +84,13 @@ rule slivar_small_variant:
     log: f"cohorts/{cohort}/logs/slivar/filter/{cohort}.{ref}.deepvariant.phased.slivar.vcf.log"
     benchmark: f"cohorts/{cohort}/benchmarks/slivar/filter/{cohort}.{ref}.deepvariant.phased.slivar.tsv"
     params: filters = slivar_filters
+    threads: 12
     conda: "envs/slivar.yaml"
     message: "Executing {rule}: Annotating {input.bcf} and applying filters."
     shell:
         """
-        (slivar \
+        (pslivar --processes {threads} \
+            --fasta {input.ref}\
             --pass-only \
             --js {input.js} \
             {params.filters} \
@@ -100,7 +102,6 @@ rule slivar_small_variant:
                 -g {input.gff} -f {input.ref} - -o {output}) > {log} 2>&1
         """
 
-# for pslivar:  --processes {threads} --fasta {input.ref}; threads: 12
 
 skip_list = [
     'non_coding_transcript',
@@ -157,7 +158,8 @@ rule slivar_tsv:
         comphet_vcf = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.slivar.compound-hets.vcf.gz",
         ped = f"cohorts/{cohort}/{cohort}.ped",
         lof_lookup = config['lof_lookup'],
-        clinvar_lookup = config['clinvar_lookup']
+        clinvar_lookup = config['clinvar_lookup'],
+        phrank_lookup = f"cohorts/{cohort}/{cohort}_gene_phenotype_scores.tsv"
     output:
         filt_tsv = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.slivar.tsv",
         comphet_tsv = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.slivar.compound-hets.tsv"
@@ -177,6 +179,7 @@ rule slivar_tsv:
             --csq-field BCSQ \
             --gene-description {input.lof_lookup} \
             --gene-description {input.clinvar_lookup} \
+            --gene-description {input.phrank_lookup} \
             --ped {input.ped} \
             --out {output.filt_tsv} \
             {input.filt_vcf}
@@ -187,6 +190,7 @@ rule slivar_tsv:
             --csq-field BCSQ \
             --gene-description {input.lof_lookup} \
             --gene-description {input.clinvar_lookup} \
+            --gene-description {input.phrank_lookup} \
             --ped {input.ped} \
             --out {output.comphet_tsv} \
             {input.comphet_vcf}) > {log} 2>&1
