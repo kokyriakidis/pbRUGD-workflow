@@ -4,10 +4,6 @@
 #SBATCH --cpus-per-task 1
 #SBATCH -o cluster_logs/slurm-%x-%j-%N.out
 
-# TODO: strip out references to module and replace with conda
-source /mnt/software/Modules/current/init/bash
-module load snakemake/5.19.3-ve
-
 # set umask to avoid locking each other out of directories
 umask 002
 
