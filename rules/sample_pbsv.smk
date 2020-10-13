@@ -61,7 +61,7 @@ rule bcftools_concat_pbsv_vcf:
     benchmark: f"samples/{sample}/benchmarks/bcftools/concat/{sample}.{ref}.pbsv.vcf.tsv"
     conda: "envs/bcftools.yaml"
     message: "Executing {rule}: Concatenating pbsv VCFs: {input.calls}"
-    shell: "bcftools concat -a -o {output} {input.calls}"
+    shell: "(bcftools concat -a -o {output} {input.calls}) > {log} 2>&1"
 
 
 # TODO

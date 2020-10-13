@@ -172,7 +172,7 @@ rule merge_haplotagged_bams:
     threads: 8
     conda: "envs/samtools.yaml"
     message: "Executing {rule}: Merging {input}."
-    shell: "samtools merge -@ 7 {output} {input}"
+    shell: "(samtools merge -@ 7 {output} {input}) > {log} 2>&1"
 
 
 # TODO

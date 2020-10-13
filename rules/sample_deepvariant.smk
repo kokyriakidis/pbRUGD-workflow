@@ -65,11 +65,11 @@ rule deepvariant_postprocess_variants_round1:
     threads: 4
     message: "Executing {rule}: DeepVariant postprocess_variants for {input.tfrecord}."
     shell:
-        f"""
+        """
         (/opt/deepvariant/bin/postprocess_variants \
-            --ref {{input.reference}} \
-            --infile {{input.tfrecord}} \
-            --outfile {{output.vcf}}) > {{log}} 2>&1
+            --ref {input.reference} \
+            --infile {input.tfrecord} \
+            --outfile {output.vcf}) > {log} 2>&1
         """
 
 
@@ -165,9 +165,10 @@ rule bcftools_stats:
     threads: 4
     conda: "envs/bcftools.yaml"
     message: "Executing {rule}: Calculating VCF statistics for {input}."
-    shell: "bcftools stats -@ 3 {params} {input} > {output}"
+    shell: "(bcftools stats -@ 3 {params} {input} > {output}) > {log} 2>&1"
 
 
+# TODO:
 # rule cleanup_deepvariant_intermediates:
 #     input: f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.vcf.gz"
 #     output: touch(f"samples/{sample}/deepvariant/{sample}.{ref}.removed_examples.txt")
