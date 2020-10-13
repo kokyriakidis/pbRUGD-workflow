@@ -21,7 +21,7 @@ rule pbsv_discover:
     message: "Executing {rule}: Discovering structural variant signatures in {wildcards.region} from {input.bam}."
     shell:
         """
-        pbsv discover \
+        (pbsv discover \
             --log-level {params.loglevel} \
             --region {wildcards.region} \
             --tandem-repeats {input.tr_bed} \

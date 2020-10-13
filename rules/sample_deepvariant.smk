@@ -18,7 +18,7 @@ rule deepvariant_make_examples_round1:
         vsc_min_fraction_indels = "0.12",
         shard = lambda wildcards: wildcards.shard,
         reads = ','.join(abams)
-    message: "Executing {rule}: DeepVariant make_examples {wildcards.shard} for {input.reads}."
+    message: "Executing {rule}: DeepVariant make_examples {wildcards.shard} for {input.bams}."
     shell:
         f"""
         (/opt/deepvariant/bin/make_examples \
@@ -91,7 +91,7 @@ rule deepvariant_make_examples_round2:
         vsc_min_fraction_indels = "0.12",
         shard = lambda wildcards: wildcards.shard,
         reads = ','.join(haplotagged_abams)
-    message: "Executing {rule}: DeepVariant make_examples {wildcards.shard} for {input.reads}."
+    message: "Executing {rule}: DeepVariant make_examples {wildcards.shard} for {input.bams}."
     shell:
         f"""
         (/opt/deepvariant/bin/make_examples \

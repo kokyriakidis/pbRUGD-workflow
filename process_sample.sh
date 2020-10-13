@@ -4,18 +4,12 @@
 #SBATCH --cpus-per-task 4
 #SBATCH -o cluster_logs/slurm-%x-%j-%N.out
 
-# TODO: remove references to module and replace with conda
-# load snakemake module
-source /mnt/software/Modules/current/init/bash
-module load snakemake/5.19.3-ve
-
 # set umask to avoid locking each other out of directories
 umask 002
 
 SAMPLE=$1
 LOCKFILE=samples/${SAMPLE}/process_sample.lock
 
-# TODO: ensure that lockfile is available with conda
 # add lockfile to directory to prevent multiple simultaneous jobs
 lockfile -r 0 ${LOCKFILE} || exit 1
 trap "rm -f ${LOCKFILE}; exit" SIGINT SIGTERM ERR EXIT
