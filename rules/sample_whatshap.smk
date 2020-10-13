@@ -19,8 +19,8 @@ rule whatshap_phase_round1:
         reference = config['ref']['fasta'],
         vcf = f"samples/{sample}/whatshap_intermediate/{sample}.{ref}.regions/{sample}.{ref}.{{chromosome}}.deepvariant.vcf.gz",
         tbi = f"samples/{sample}/whatshap_intermediate/{sample}.{ref}.regions/{sample}.{ref}.{{chromosome}}.deepvariant.vcf.gz.tbi",
-        phaseinput = abam_dict.values(),
-        phaseinputindex = [f"{x}.bai" for x in abam_dict.values()]
+        phaseinput = abams,
+        phaseinputindex = [f"{x}.bai" for x in abams]
     output: temp(f"samples/{sample}/whatshap_intermediate/{sample}.{ref}.regions/{sample}.{ref}.{{chromosome}}.deepvariant.phased.vcf.gz")
     log: f"samples/{sample}/logs/whatshap/phase/{sample}.{ref}.{{chromosome}}.whatshap_intermediate.log"
     benchmark: f"samples/{sample}/benchmarks/whatshap/phase/{sample}.{ref}.{{chromosome}}.whatshap_intermediate.tsv"
@@ -67,7 +67,7 @@ rule whatshap_haplotag_round1:
         (whatshap haplotag {params} \
             --output {output} \
             --reference {input.reference} \
-            {input.vcf} {input.bam}) {log}
+            {input.vcf} {input.bam}) > {log} 2>&1
         """
 
 
@@ -87,8 +87,8 @@ rule whatshap_phase_round2:
         reference = config['ref']['fasta'],
         vcf = f"samples/{sample}/whatshap/{sample}.{ref}.regions/{sample}.{ref}.{{chromosome}}.deepvariant.vcf.gz",
         tbi = f"samples/{sample}/whatshap/{sample}.{ref}.regions/{sample}.{ref}.{{chromosome}}.deepvariant.vcf.gz.tbi",
-        phaseinput = abam_dict.values(),
-        phaseinputindex = [f"{x}.bai" for x in abam_dict.values()]
+        phaseinput = abams,
+        phaseinputindex = [f"{x}.bai" for x in abams]
     output: temp(f"samples/{sample}/whatshap/{sample}.{ref}.regions/{sample}.{ref}.{{chromosome}}.deepvariant.phased.vcf.gz")
     log: f"samples/{sample}/logs/whatshap/phase/{sample}.{ref}.{{chromosome}}.log"
     benchmark: f"samples/{sample}/benchmarks/whatshap/phase/{sample}.{ref}.{{chromosome}}.tsv"
@@ -160,7 +160,7 @@ rule whatshap_haplotag_round2:
         (whatshap haplotag {params} \
             --output {output} \
             --reference {input.reference} \
-            {input.vcf} {input.bam}) {log}
+            {input.vcf} {input.bam}) > {log} 2>&1
         """
 
 
