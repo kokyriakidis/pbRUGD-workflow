@@ -43,7 +43,7 @@ rule split_glnexus_vcf:
     params: region = lambda wildcards: wildcards.region, extra = '-h'
     conda: "envs/htslib.yaml"
     message: "Executing {rule}: Extracting {wildcards.region} variants from {input}."
-    shell: "tabix {params.extra} {input.vcf} {params.region} > {output} 2> {log}"
+    shell: "(tabix {params.extra} {input.vcf} {params.region} > {output}) 2> {log}"
 
 
 rule whatshap_phase:
@@ -85,7 +85,7 @@ rule whatshap_bcftools_concat:
     params: "-a -Oz"
     conda: "envs/bcftools.yaml"
     message: "Executing {rule}: Concatenating WhatsHap phased VCFs: {input.calls}"
-    shell: "bcftools concat {params} -o {output} {input.calls} > {log} 2>&1"
+    shell: "(bcftools concat {params} -o {output} {input.calls}) > {log} 2>&1"
 
 
 rule whatshap_stats:

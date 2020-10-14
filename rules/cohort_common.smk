@@ -20,7 +20,7 @@ rule tabix_vcf:
     params: "-p vcf"
     conda: "envs/htslib.yaml"
     message: "Executing {rule}: Indexing {input}."
-    shell: "tabix {params} {input} > {log} 2>&1"
+    shell: "(tabix {params} {input}) > {log} 2>&1"
 
 
 rule tabix_bcf:
@@ -31,7 +31,7 @@ rule tabix_bcf:
     params: "-p bcf"
     conda: "envs/htslib.yaml"
     message: "Executing {rule}: Indexing {input}."
-    shell: "tabix {params} {input} > {log} 2>&1"
+    shell: "(tabix {params} {input}) > {log} 2>&1"
 
 
 rule create_ped:
