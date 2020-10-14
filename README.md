@@ -34,7 +34,7 @@ This repo consists of three [Snakemake](https://snakemake.readthedocs.io/en/stab
 - phase small variants with [WhatsHap](https://github.com/whatshap/whatshap/)
 - merge per SMRT Cell BAMs and tag merged bam with haplotype based on WhatsHap phased DeepVariant variant calls
 - merge jellyfish kmer counts
-- assemble reads with [hifiasm](https://github.com/chhylp123/hifiasm)
+- assemble reads with [hifiasm](https://github.com/chhylp123/hifiasm) and calculate stats with [calN50.js](https://github.com/lh3/calN50)
 - align assembly to reference with [minimap2](https://github.com/lh3/minimap2)
 - check for sample swaps by calculate consistency of kmers between sequencing runs
 
@@ -48,7 +48,7 @@ This repo consists of three [Snakemake](https://snakemake.readthedocs.io/en/stab
   - jointly call structural variants with pbsv
   - jointly call small variants with [GLnexus](https://github.com/dnanexus-rnd/GLnexus)
 - using [slivar](https://github.com/brentp/slivar)
-  - annotate variant calls with population frequency from [gnomAD](https://gnomad.broadinstitute.org) and HPRC variant databases
+  - annotate variant calls with population frequency from [gnomAD](https://gnomad.broadinstitute.org) and [HPRC](https://humanpangenome.org) variant databases
   - filter variant calls according to population frequency and inheritance patterns
   - detect possible compound heterozygotes, and filter to remove cis-combinations
 
