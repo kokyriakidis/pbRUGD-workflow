@@ -30,11 +30,11 @@ def import_records(reader):
             PS = '0'
             if sample.is_phased:
                 PS = str(sample.data['PS'])
-        lookup[varkey][samplename] = (PS, GT)
+            lookup[varkey][samplename] = (PS, GT)
     return records, lookup
 
 
-def compare_phase(slivar_comphet, calls, lookup, phase_table):
+def compare_phase(slivar_comphet, calls, lookup):
     """Return whether slivar_compet and this variant are on same phase.
 
     Given current slivar_comphet record and variant calls for current record
@@ -44,19 +44,15 @@ def compare_phase(slivar_comphet, calls, lookup, phase_table):
     ch_PS, ch_GT = lookup[(chrom, pos, ref, alt)][sample]
     # look up the phase set and genotype of this variant
     if not calls[sample].is_phased:
-        phase_table["_".join(["slivar_comphet", str(chid)])] = 'unknown'
         return 'unknown'
     this_GT = calls[sample].data['GT']
     this_PS = str(calls[sample].data['PS'])
     if ch_PS == this_PS:
         if ch_GT == this_GT:
-            phase_table["_".join(["slivar_comphet", str(chid)])] = 'cis'
             return 'cis'
         elif ch_GT != this_GT:
-            phase_table["_".join(["slivar_comphet", str(chid)])] = 'trans'
             return 'trans'
     else:
-        phase_table["_".join(["slivar_comphet", str(chid)])] = 'unknown'
         return 'unknown'
 
 
@@ -65,14 +61,13 @@ def main():
     reader = vcfpy.Reader.from_path('/dev/stdin')
     records, lookup = import_records(reader)
 
-    phase_table = {}
     # write to stdout
     with vcfpy.Writer.from_path('/dev/stdout', reader.header) as writer:
         for record in records:
             calls = {x.sample: x for x in record.calls}
             for ix, slivar_comphet in enumerate(record.INFO['slivar_comphet']):
                 phase = compare_phase(slivar_comphet, calls,
-                                      lookup, phase_table)
+                                      lookup)
                 record.INFO['slivar_comphet'][ix] = \
                     "/".join([slivar_comphet, phase])
             writer.write_record(record)
