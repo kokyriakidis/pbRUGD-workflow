@@ -34,8 +34,8 @@ PHENOTYPES = {'unaffecteds': 1, 'affecteds': 2}
 def find_cohort(args):
     """Find entry for cohortid within cohortyaml."""
     with open(args.cohortyaml, 'r') as yamlfile:
-        cohort_list = yaml.load(yamlfile, Loader=yaml.FullLoader)
-    for cohort in cohort_list:
+        cohort_dict = yaml.load(yamlfile, Loader=yaml.FullLoader)
+    for cohort in cohort_dict.itervalues():
         if cohort['id'] == args.cohortid:
             return cohort
     print(f"Cohort {args.cohortid} not found in {args.cohortyaml}.") and exit

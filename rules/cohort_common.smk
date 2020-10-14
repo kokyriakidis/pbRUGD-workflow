@@ -35,7 +35,7 @@ rule tabix_bcf:
 
 
 rule create_ped:
-    input: "100humans-data/cohorts/all.yaml"
+    input: config['cohort_yaml']
     output: f"cohorts/{cohort}/{cohort}.ped"
     log: f"cohorts/{cohort}/logs/yaml2ped/{cohort}.log"
     conda: "envs/yaml2ped.yaml"
