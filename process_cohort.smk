@@ -7,7 +7,7 @@ from collections import defaultdict
 shell.prefix("set -o pipefail; umask 002; ")           # set g+w
 configfile: "workflow/reference.yaml"                  # reference information
 configfile: "workflow/config.yaml"                     # general configuration
-configfile: "100humans-data/cohorts/all_as_dict.yaml"  # list of all cohorts and samples TODO: config
+configfile: config['cohort_yaml']  # list of all cohorts and samples TODO: config
 
 # cohort will be provided at command line with `--config cohort=$COHORT`
 cohort = config['cohort']
