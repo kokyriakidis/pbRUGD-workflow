@@ -47,6 +47,8 @@ if singleton:
     # use the sample level VCFs
     slivar_input = f"samples/{samples[0]}/whatshap/{samples[0]}.{ref}.deepvariant.phased.vcf.gz"
     svpack_input = f"samples/{samples[0]}/pbsv/{samples[0]}.{ref}.pbsv.vcf.gz"
+    gvcf_list = []   # unused
+    svsig_dict = []  # unused
 else:
     # generate joint-called VCFs
     slivar_input = f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.glnexus.phased.vcf.gz"
@@ -62,13 +64,13 @@ else:
 targets = []
 include: 'rules/cohort_common.smk'
 
-# generate a cohort level pbsv vcf
+# generate a cohort level pbsv vcf or use singleton vcf
 include: 'rules/cohort_pbsv.smk'
 targets.extend([svpack_input, svpack_input + '.tbi'])
 
 # TODO: annotate and filter pbsv vcf
 
-# generate a cohort level deepvariant vcf
+# generate a cohort level deepvariant vcf or use singleton vcf
 include: 'rules/cohort_glnexus.smk'
 targets.extend([slivar_input, slivar_input + '.tbi'])
 
