@@ -11,7 +11,7 @@ ref:
   snpeff_db: 'GRCh38.86'
   ensembl_gff_url: 'ftp://ftp.ensembl.org//pub/release-101/gff3/homo_sapiens/Homo_sapiens.GRCh38.101.gff3.gz'
   ensembl_gff: 'reference/ensembl.GRCh38.101.reformatted.gff3.gz'
-  gnomad_gnotate: 'resources/slivar/gnomad.hg38.v3.zip'
+  gnomad_gnotate: 'resources/slivar/gnomad.hg38.v3.custom.zip'
   hprc_dv_gnotate: 'resources/slivar/hprc.deepvariant.glnexus.hg38.v1.zip'
   autosomes: ['chr1', 'chr2', 'chr3', 'chr4', 'chr5',
               'chr6', 'chr7', 'chr8', 'chr9', 'chr10',

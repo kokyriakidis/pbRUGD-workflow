@@ -175,12 +175,4 @@ rule merge_haplotagged_bams:
     shell: "(samtools merge -@ 7 {output} {input}) > {log} 2>&1"
 
 
-# TODO
-# rule cleanup_whatshap_intermediates:
-#     input: f"samples/{sample}/whatshap/{sample}.{ref}.deepvariant.haplotagged.bam"
-#     output: touch(f"samples/{sample}/whatshap/{sample}.{ref}.removed_intermediates.txt")
-#     message: f"Executing {{rule}}: Removing intermediate files for {sample}."
-#     shell:
-#         f"""
-#         rm -rf samples/{sample}/whatshap/{sample}.{ref}.regions/ samples/{sample}/whatshap_intermediate/
-#         """
+# TODO: cleanup whatshap intermediates

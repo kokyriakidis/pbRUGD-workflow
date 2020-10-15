@@ -64,9 +64,4 @@ rule bcftools_concat_pbsv_vcf:
     shell: "(bcftools concat -a -o {output} {input.calls}) > {log} 2>&1"
 
 
-# TODO
-# rule cleanup_pbsv_intermediates:
-#     input: f"samples/{sample}/pbsv/{sample}.{ref}.pbsv.vcf.gz"
-#     output: touch(f"samples/{sample}/pbsv/{sample}.{ref}.removed_intermediates.txt")
-#     message: f"Executing {{rule}}: Removing intermediate folder for {sample}."
-#     shell: f"rm -rf samples/{sample}/pbsv/{sample}.{ref}.chrom_vcfs/"
+# TODO: cleanup pbsv intermediates

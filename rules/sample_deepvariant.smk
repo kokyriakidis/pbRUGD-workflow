@@ -165,16 +165,7 @@ rule bcftools_stats:
     threads: 4
     conda: "envs/bcftools.yaml"
     message: "Executing {rule}: Calculating VCF statistics for {input}."
-    shell: "(bcftools stats -@ 3 {params} {input} > {output}) > {log} 2>&1"
+    shell: "(bcftools stats --threads 3 {params} {input} > {output}) > {log} 2>&1"
 
 
-# TODO:
-# rule cleanup_deepvariant_intermediates:
-#     input: f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.vcf.gz"
-#     output: touch(f"samples/{sample}/deepvariant/{sample}.{ref}.removed_examples.txt")
-#     message: f"Executing {{rule}}: Removing deepvariant examples folder for {sample}."
-#     shell:
-#         f"""
-#         rm -rf samples/{sample}/deepvariant/examples/ \
-#                samples/{sample}/deepvariant_intermediate/examples/
-#         """
+# TODO: cleanup deepvariant intermediates
