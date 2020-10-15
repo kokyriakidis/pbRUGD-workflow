@@ -10,7 +10,7 @@ configfile: "workflow/reference.yaml"         # reference information
 configfile: "workflow/config.yaml"            # general configuration
 
 
-def get_samples(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort'])
+def get_samples(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
     """Find all samples associated with cohort."""
     with open(cohortyaml, 'r') as yamlfile:
         cohort_list = yaml.load(yamlfile, Loader = yaml.FullLoader)
