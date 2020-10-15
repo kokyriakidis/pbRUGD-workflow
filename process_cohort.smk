@@ -1,28 +1,41 @@
 import os
 import re
+import yaml
 from pathlib import Path
 from collections import defaultdict
 
 
-shell.prefix("set -o pipefail; umask 002; ")           # set g+w
-configfile: "workflow/reference.yaml"                  # reference information
-configfile: "workflow/config.yaml"                     # general configuration
-configfile: config['cohort_yaml']  # list of all cohorts and samples TODO: config
+shell.prefix("set -o pipefail; umask 002; ")  # set g+w
+configfile: "workflow/reference.yaml"         # reference information
+configfile: "workflow/config.yaml"            # general configuration
+
+
+def get_samples(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort'])
+    """Find all samples associated with cohort."""
+    with open(cohortyaml, 'r') as yamlfile:
+        cohort_list = yaml.load(yamlfile, Loader = yaml.FullLoader)
+    for c in cohort_list:
+        if c['id'] == cohort_id:
+            break
+    samples = []
+    for affectedstatus in ['affecteds', 'unaffecteds']:
+        if affectedstatus in c:
+            for individual in range(len(c[affectedstatus])):
+                samples.append(c[affectedstatus][individual]['id'])
+    return samples
+
 
 # cohort will be provided at command line with `--config cohort=$COHORT`
 cohort = config['cohort']
 ref = config['ref']['shortname']
 all_chroms = config['ref']['autosomes'] + config['ref']['sex_chrom'] + config['ref']['mit_chrom']
-samples = []
 print(f"Processing cohort {cohort} with reference {ref}.")
 
 if not cohort in config:
     print(f"{cohort} not listed in valid cohorts.") and exit
 
 # find all samples in cohort
-for status in ("affecteds", "unaffecteds"):
-    if status in config[cohort]:
-        samples.extend([s['id'] for s in config[cohort][status]])
+samples = get_samples()
 
 if len(samples) == 0:
     print(f"No samples in {cohort}.") and exit

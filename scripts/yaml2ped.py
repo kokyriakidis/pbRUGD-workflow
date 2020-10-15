@@ -28,14 +28,14 @@ FIELDNAMES = ['Family_ID', 'Individual_ID',
               'Paternal_ID', 'Maternal_ID',
               'Sex', 'Phenotype']
 SEXES = {'MALE': 1, 'FEMALE': 2}
-PHENOTYPES = {'unaffecteds': 1, 'affecteds': 2}
+AFFECTEDSTATUS = {'unaffecteds': 1, 'affecteds': 2}
 
 
 def find_cohort(args):
     """Find entry for cohortid within cohortyaml."""
     with open(args.cohortyaml, 'r') as yamlfile:
-        cohort_dict = yaml.load(yamlfile, Loader=yaml.FullLoader)
-    for cohort in cohort_dict.itervalues():
+        cohort_list = yaml.load(yamlfile, Loader=yaml.FullLoader)
+    for cohort in cohort_list:
         if cohort['id'] == args.cohortid:
             return cohort
     print(f"Cohort {args.cohortid} not found in {args.cohortyaml}.") and exit
@@ -45,29 +45,29 @@ def parse_yaml(args):
     """Parse cohortyaml, returning list of dicts for each individual in cohortid."""
     rows = []
     cohort = find_cohort(args)
-    for phenotype in PHENOTYPES.keys():
-        if phenotype in cohort:
-            for individual in range(len(cohort[phenotype])):
+    for affectedstatus in AFFECTEDSTATUS.keys():
+        if affectedstatus in cohort:
+            for individual in range(len(cohort[affectedstatus])):
                 # if sex is absent, set to unknown value
-                if 'sex' in cohort[phenotype][individual]:
-                    ind_sex = SEXES[cohort[phenotype][individual]['sex']]
+                if 'sex' in cohort[affectedstatus][individual]:
+                    ind_sex = SEXES[cohort[affectedstatus][individual]['sex']]
                 else:
                     ind_sex = '.'
                 # assume that maternal_id is always listed first in parents
-                if ('parents' in cohort[phenotype][individual]) \
-                        and (len(cohort[phenotype][individual]['parents']) == 2):
-                    mat_id = cohort[phenotype][individual]['parents'][0]
-                    pat_id = cohort[phenotype][individual]['parents'][1]
+                if ('parents' in cohort[affectedstatus][individual]) \
+                        and (len(cohort[affectedstatus][individual]['parents']) == 2):
+                    mat_id = cohort[affectedstatus][individual]['parents'][0]
+                    pat_id = cohort[affectedstatus][individual]['parents'][1]
                 else:
                     mat_id = '.'
                     pat_id = '.'
                 row = {
                     'Family_ID': args.cohortid,
-                    'Individual_ID': cohort[phenotype][individual]['id'],
+                    'Individual_ID': cohort[affectedstatus][individual]['id'],
                     'Paternal_ID': pat_id,
                     'Maternal_ID': mat_id,
                     'Sex': ind_sex,
-                    'Phenotype': PHENOTYPES[phenotype]
+                    'Phenotype': AFFECTEDSTATUS[affectedstatus]
                 }
                 rows.append(row)
     return rows
