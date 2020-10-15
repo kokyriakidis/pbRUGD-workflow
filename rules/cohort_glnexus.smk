@@ -59,7 +59,7 @@ rule whatshap_phase:
     params:
         chromosome = lambda wildcards: wildcards.chromosome,
         extra = "--indels"
-    conda: "envs/whatshap.smk"
+    conda: "envs/whatshap.yaml"
     message: "Executing {rule}: Phasing {input.vcf} using {input.phaseinput} for chromosome {wildcards.chromosome}."
     shell:
         """
