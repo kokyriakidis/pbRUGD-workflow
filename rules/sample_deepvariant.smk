@@ -165,7 +165,7 @@ rule bcftools_stats:
     threads: 4
     conda: "envs/bcftools.yaml"
     message: "Executing {rule}: Calculating VCF statistics for {input}."
-    shell: "(bcftools stats -@ 3 {params} {input} > {output}) > {log} 2>&1"
+    shell: "(bcftools stats --threads 3 {params} {input} > {output}) > {log} 2>&1"
 
 
 # TODO:
