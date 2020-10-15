@@ -41,3 +41,21 @@ rule create_ped:
     conda: "envs/yaml2ped.yaml"
     message: f"Executing {{rule}}: Creating pedigree file for {cohort}."
     shell: f"(python3 workflow/scripts/yaml2ped.py {{input}} {cohort} {{output}}) > {{log}} 2>&1"
+
+
+rule calculate_phrank:
+    input:
+        hpoterms = config['hpo']['terms'],
+        hpodag = config['hpo']['dag'],
+        hpoannotations = config['hpo']['annotations'],
+        ensembltohgnc = config['ensembl_to_hgnc'],
+        allyaml = config['cohort_yaml']
+    output: f"cohorts/{cohort}/{cohort}_phrank.tsv"
+    log: f"cohorts/{cohort}/logs/calculate_phrank/{cohort}.log"
+    conda: "envs/phrank.yaml"
+    message: f"Executing {{rule}}: Calculate Phrank scores for {cohort}."
+    shell:
+        f"""(python3 workflow/scripts/calculate_phrank.py \
+        {{input.hpoterms}} {{input.hpodag}} {{input.hpoannotations}} \
+        {{input.ensembltohgnc}} {{input.allyaml}} {cohort} {{output}}) > {{log}} 2>&1
+        """

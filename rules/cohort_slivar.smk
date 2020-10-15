@@ -159,7 +159,7 @@ rule slivar_tsv:
         ped = f"cohorts/{cohort}/{cohort}.ped",
         lof_lookup = config['lof_lookup'],
         clinvar_lookup = config['clinvar_lookup'],
-        phrank_lookup = f"cohorts/{cohort}/{cohort}_gene_phenotype_scores.tsv"
+        phrank_lookup = f"cohorts/{cohort}/{cohort}_phrank.tsv"
     output:
         filt_tsv = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.slivar.tsv",
         comphet_tsv = f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.slivar.compound-hets.tsv"

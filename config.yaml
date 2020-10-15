@@ -22,4 +22,13 @@ clinvar_lookup_url: "ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/gene_condition_sourc
 clinvar_lookup: "resources/slivar/clinvar_gene_desc.txt"
 
 # cohorts yaml
-cohort_yaml: "cohort_dict.yaml"
+cohort_yaml: "cohort.yaml"
+
+# lookups for gene mapping
+ensembl_to_hgnc: 'resources/hpo/ensembl.hgncSymbol.tsv'
+
+# lookups for HPO annotations
+hpo:
+  terms: 'resources/hpo/hpoTerms.txt'
+  dag: 'resources/hpo/hpoDag.txt'
+  annotations: 'resources/hpo/ensembl.hpoPhenotype.tsv'
