@@ -112,12 +112,4 @@ rule whatshap_stats:
         """
 
 
-# TODO
-# rule cleanup_whatshap_intermediates:
-#     input: f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.haplotagged.bam"
-#     output: touch(f"cohorts/{cohort}/whatshap/{cohort}.{ref}.removed_intermediates.txt")
-#     message: f"Executing {{rule}}: Removing intermediate files for {cohort}."
-#     shell:
-#         f"""
-#         rm -rf cohorts/{cohort}/whatshap/regions/
-#         """
+# TODO: cleanup whatshap intermediates
