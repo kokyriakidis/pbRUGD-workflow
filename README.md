@@ -48,6 +48,7 @@ This repo consists of three [Snakemake](https://snakemake.readthedocs.io/en/stab
   - annotate variant calls with population frequency from [gnomAD](https://gnomad.broadinstitute.org) and [HPRC](https://humanpangenome.org) variant databases
   - filter variant calls according to population frequency and inheritance patterns
   - detect possible compound heterozygotes, and filter to remove cis-combinations
+  - assign a phenotype rank (Phrank) score, based on [Jagadeesh KA, *et al.* 2019. *Genet Med*.](https://doi.org/10.1038/s41436-018-0072-y)
 
 ## Dependencies
 

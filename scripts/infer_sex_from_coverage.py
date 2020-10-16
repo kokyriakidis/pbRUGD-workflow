@@ -5,7 +5,7 @@ Infer chromosomal sex from sequencing coverage ratios from GRCh38 alignments.
 
 __author__ = "William Rowell"
 __version__ = "0.1.0"
-__license__ = "MIT"
+
 
 import argparse
 import pandas as pd

@@ -5,7 +5,6 @@ For slivar_comphet tags, note whether pairs are cis/trans/unknown
 
 __author__ = "William Rowell"
 __version__ = "0.1.0"
-__license__ = "MIT"
 
 
 import vcfpy

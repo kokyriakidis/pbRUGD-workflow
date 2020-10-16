@@ -4,7 +4,7 @@ Print read length and predicted read quality for unaligned reads (uBAM or FASTQ)
 """
 
 __version__ = "0.1.0"
-__license__ = "MIT"
+
 
 import argparse
 import pysam
