@@ -2,7 +2,7 @@
 
 ## Workflow for the comprehensive detection and prioritization of variants in human genomes with PacBio HiFi reads
 
-_Note_: Code coming to this repo soon.  Currently removing last remaining internal dependencies.
+_Note_: Workflow is committed.  Web app code to come.
 
 ## Authors
 
