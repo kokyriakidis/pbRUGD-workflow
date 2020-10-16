@@ -41,10 +41,7 @@ This repo consists of three [Snakemake](https://snakemake.readthedocs.io/en/stab
 ### `process_cohort`
 
 - launched once all samples in cohort have been processed
-- if singleton
-  - link sample level structural variant VCF into cohort folder
-  - link phased small variant VCF into cohort folder
-- if cohort
+- if multi-sample cohort
   - jointly call structural variants with pbsv
   - jointly call small variants with [GLnexus](https://github.com/dnanexus-rnd/GLnexus)
 - using [slivar](https://github.com/brentp/slivar)
@@ -54,5 +51,13 @@ This repo consists of three [Snakemake](https://snakemake.readthedocs.io/en/stab
 
 ## Dependencies
 
+- some tools (e.g. pbsv) require linux
 - conda
-- singularity >= 3.5.3
+- singularity >= 3.5.3 installed by root
+- `environment.yaml`
+
+## Configuration
+
+- `config.yaml` contains file paths and version numbers for docker images
+- `reference.yaml` contains file paths and names related to reference
+- `*.cluster.yaml` contains example cluster configuration for a slurm cluster with a `compute` queue for general compute and a `ml` queue for GPU.
