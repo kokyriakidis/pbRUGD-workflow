@@ -73,7 +73,7 @@ rule asm_stats:
     benchmark: f"samples/{sample}/benchmarks/asm_stats/{sample}.asm.{{infix}}.fasta.tsv"
     conda: "envs/k8.yaml"
     message: "Calculating stats for {input}."
-    shell: f"(k8 workflow/scripts/calN50.js -f {config['ref']['index']} {{input}} > {{output}}) > {{log}} 2>&1"
+    shell: f"(k8 workflow/scripts/calN50/calN50.js -f {config['ref']['index']} {{input}} > {{output}}) > {{log}} 2>&1"
 
 
 rule align_hifiasm:
