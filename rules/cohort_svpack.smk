@@ -14,9 +14,9 @@ rule svpack_filter_annotated:
     shell:
         """
         (python workflow/scripts/svpack/svpack filter --pass-only \
-            --min-svlen {params.min_sv_length} {input.pbsv_vcf} |​ \
-            python workflow/scripts/svpack/svpack match -v - {input.eee_vcf} |​ \
-            python workflow/scripts/svpack/svpack match -v - {input.gnomadsv_vcf} |​ \
+            --min-svlen {params.min_sv_length} {input.pbsv_vcf} | \
+            python workflow/scripts/svpack/svpack match -v - {input.eee_vcf} | \
+            python workflow/scripts/svpack/svpack match -v - {input.gnomadsv_vcf} | \
             python workflow/scripts/svpack/svpack match -v - {input.hprc_pbsv_vcf} | \
             python workflow/scripts/svpack/svpack consequence - {input.gff} > {output}) 2> {log}
         """
