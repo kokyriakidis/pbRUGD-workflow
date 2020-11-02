@@ -79,12 +79,12 @@ targets.extend([f"samples/{sample}/smrtcell_stats/{movie}.{suffix}"
 
 # coverage-based library and sample QC metrics: mtDNA:autosome ratio and inferred chromosomal sex
 include: 'rules/smrtcell_coverage_qc.smk'
-targets.extend([f"samples/{sample}/mosdepth/{movie}.{ref}.mosdepth.{suffix}"
-                for suffix in ['inferred_sex.txt', 'M2_ratio.txt']
+targets.extend([f"samples/{sample}/mosdepth/{movie}.{ref}.{suffix}"
+                for suffix in ['mosdepth.inferred_sex.txt', 'mosdepth.M2_ratio.txt', 'gc_coverage.summary.txt']
                 for sample in list(ubam_dict.keys())
                 for movie in list(ubam_dict[sample].keys())])  # QC from uBAMs
-targets.extend([f"samples/{sample}/mosdepth/{movie}.{ref}.mosdepth.{suffix}"
-                for suffix in ['inferred_sex.txt', 'M2_ratio.txt']
+targets.extend([f"samples/{sample}/mosdepth/{movie}.{ref}.{suffix}"
+                for suffix in ['mosdepth.inferred_sex.txt', 'mosdepth.M2_ratio.txt', 'gc_coverage.summary.txt']
                 for sample in list(fastq_dict.keys())
                 for movie in list(fastq_dict[sample].keys())]) # QC from FASTQs
 
