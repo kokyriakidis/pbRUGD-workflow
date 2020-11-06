@@ -73,10 +73,12 @@ targets.extend([f"samples/{sample}/whatshap/{sample}.{ref}.deepvariant.{suffix}"
 
 # calculate coverage of haplotagged sample aBAM with mosdepth
 include: 'rules/sample_mosdepth.smk'
+include: 'rules/sample_gc_coverage.smk'
 targets.extend([f"samples/{sample}/mosdepth/{sample}.{ref}.deepvariant.haplotagged.{suffix}"
                 for suffix in ['mosdepth.global.dist.txt', 'mosdepth.region.dist.txt',
                                'mosdepth.summary.txt', 'regions.bed.gz']])
                 # coverage from merged haplotagged aBAM
+targets.extend([f"samples/{sample}/mosdepth/{sample}.{ref}.gc_coverage.summary.txt"])
 
 # merge kmers with jellyfish
 include: 'rules/sample_jellyfish.smk'
