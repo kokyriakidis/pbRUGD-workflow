@@ -81,7 +81,10 @@ include: 'rules/cohort_common.smk'
 include: 'rules/cohort_pbsv.smk'
 targets.extend([svpack_input, svpack_input + '.tbi'])
 
-# TODO: annotate and filter pbsv vcf with svpack
+# annotate and filter pbsv vcf with svpack
+include: 'rules/cohort_svpack.smk'
+targets.extend([f"cohorts/{cohort}/svpack/{cohort}.{ref}.pbsv.svpack.{suffix}"
+                for suffix in ['vcf.gz', 'vcf.gz.tbi', 'tsv']])
 
 # generate a cohort level deepvariant vcf or use singleton vcf
 include: 'rules/cohort_glnexus.smk'
