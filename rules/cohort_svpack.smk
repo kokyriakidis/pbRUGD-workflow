@@ -18,7 +18,7 @@ rule svpack_filter_annotated:
             python workflow/scripts/svpack/svpack match -v - {input.eee_vcf} | \
             python workflow/scripts/svpack/svpack match -v - {input.gnomadsv_vcf} | \
             python workflow/scripts/svpack/svpack match -v - {input.hprc_pbsv_vcf} | \
-            python workflow/scripts/svpack/svpack consequence - {input.gff} | |
+            python workflow/scripts/svpack/svpack consequence - {input.gff} | \
             python workflow/scripts/svpack/svpack tagzygosity - > {output}) 2> {log}
         """
 

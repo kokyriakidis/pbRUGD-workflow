@@ -49,7 +49,7 @@ rule calculate_phrank:
         hpodag = config['hpo']['dag'],
         hpoannotations = config['hpo']['annotations'],
         ensembltohgnc = config['ensembl_to_hgnc'],
-        allyaml = config['cohort_yaml']
+        cohort_yaml = config['cohort_yaml']
     output: f"cohorts/{cohort}/{cohort}_phrank.tsv"
     log: f"cohorts/{cohort}/logs/calculate_phrank/{cohort}.log"
     conda: "envs/phrank.yaml"
@@ -57,5 +57,5 @@ rule calculate_phrank:
     shell:
         f"""(python3 workflow/scripts/calculate_phrank.py \
         {{input.hpoterms}} {{input.hpodag}} {{input.hpoannotations}} \
-        {{input.ensembltohgnc}} {{input.allyaml}} {cohort} {{output}}) > {{log}} 2>&1
+        {{input.ensembltohgnc}} {{input.cohort_yaml}} {cohort} {{output}}) > {{log}} 2>&1
         """

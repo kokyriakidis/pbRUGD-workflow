@@ -31,9 +31,6 @@ ref = config['ref']['shortname']
 all_chroms = config['ref']['autosomes'] + config['ref']['sex_chrom'] + config['ref']['mit_chrom']
 print(f"Processing cohort {cohort} with reference {ref}.")
 
-if not cohort in config:
-    print(f"{cohort} not listed in valid cohorts.") and exit
-
 # find all samples in cohort
 samples = get_samples()
 
