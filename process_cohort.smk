@@ -43,7 +43,7 @@ else:
 print(f"Samples in cohort: {samples}.")
 
 # scan samples/*/aligned to generate a dict-of-lists-of-movies for 
-pattern = re.compile(r'samples/(?P<sample>[A-Za-z0-9_-]+)/aligned/(?P<movie>m\d{5}[U]?_\d{6}_\d{6})\.(?P<reference>.*).bam')
+pattern = re.compile(r'samples/(?P<sample>[A-Za-z0-9_-]+)/aligned/(?P<movie>m\d{5}[Ue]?_\d{6}_\d{6})\.(?P<reference>.*).bam')
 movie_dict = defaultdict(list)
 abam_list = []
 for infile in Path(f"samples").glob('**/aligned/*.bam'):
