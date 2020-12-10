@@ -1,138 +1,36 @@
-shards = [f"{x:05}" for x in range(config['N_SHARDS'])]
-
-
-localrules: cleanup_deepvariant_intermediates
-
-
-rule deepvariant_make_examples_round1:
+rule deepvariant_round1:
     input:
         bams = abams,
         bais = [f"{x}.bai" for x in abams],
         reference = config['ref']['fasta']
     output:
-        tfrecord = temp(f"samples/{sample}/deepvariant_intermediate/examples/examples.tfrecord-{{shard}}-of-{config['N_SHARDS']:05}.gz")
-    log: f"samples/{sample}/logs/deepvariant_intermediate/make_examples/{sample}.{ref}.{{shard}}-of-{config['N_SHARDS']:05}.log"
-    benchmark: f"samples/{sample}/benchmarks/deepvariant_intermediate/make_examples/{sample}.{ref}.{{shard}}-of-{config['N_SHARDS']:05}.tsv"
-    container: f"docker://google/deepvariant:{config['DEEPVARIANT_VERSION']}"
-    params:
-        vsc_min_fraction_indels = "0.12",
-        shard = lambda wildcards: wildcards.shard,
-        reads = ','.join(abams)
-    message: "Executing {rule}: DeepVariant make_examples {wildcards.shard} for {input.bams}."
-    shell:
-        f"""
-        (/opt/deepvariant/bin/make_examples \
-            --norealign_reads \
-            --vsc_min_fraction_indels {{params.vsc_min_fraction_indels}} \
-            --alt_aligned_pileup=diff_channels \
-            --mode calling \
-            --ref {{input.reference}} \
-            --reads {{params.reads}} \
-            --examples samples/{sample}/deepvariant_intermediate/examples/examples.tfrecord@{config['N_SHARDS']}.gz \
-            --task {{wildcards.shard}}) > {{log}} 2>&1
-        """
-
-
-rule deepvariant_call_variants_gpu_round1:
-    input: expand(f"samples/{sample}/deepvariant_intermediate/examples/examples.tfrecord-{{shard}}-of-{config['N_SHARDS']:05}.gz", shard=shards)
-    output: temp(f"samples/{sample}/deepvariant_intermediate/{sample}.{ref}.call_variants_output.tfrecord.gz")
-    log: f"samples/{sample}/logs/deepvariant_intermediate/call_variants/{sample}.{ref}.log"
-    benchmark: f"samples/{sample}/benchmarks/deepvariant_intermediate/call_variants/{sample}.{ref}.tsv"
-    container: f"docker://google/deepvariant:{config['DEEPVARIANT_VERSION']}"
-    params: model = "/opt/models/pacbio/model.ckpt"
-    threads: 8
-    message: "Executing {rule}: DeepVariant call_variants for {input}."
-    shell:
-        f"""
-        (/opt/deepvariant/bin/call_variants \
-            --outfile {{output}} \
-            --examples samples/{sample}/deepvariant_intermediate/examples/examples.tfrecord@{config['N_SHARDS']}.gz \
-            --checkpoint {{params.model}}) > {{log}} 2>&1
-        """
-
-
-rule deepvariant_postprocess_variants_round1:
-    input:
-        tfrecord = f"samples/{sample}/deepvariant_intermediate/{sample}.{ref}.call_variants_output.tfrecord.gz",
-        reference = config['ref']['fasta']
-    output:
         vcf = f"samples/{sample}/deepvariant_intermediate/{sample}.{ref}.deepvariant.vcf.gz",
         vcf_index = f"samples/{sample}/deepvariant_intermediate/{sample}.{ref}.deepvariant.vcf.gz.tbi",
         report = f"samples/{sample}/deepvariant_intermediate/{sample}.{ref}.deepvariant.visual_report.html"
-    log: f"samples/{sample}/logs/deepvariant_intermediate/postprocess_variants/{sample}.{ref}.log"
-    benchmark: f"samples/{sample}/benchmarks/deepvariant_intermediate/postprocess_variants/{sample}.{ref}.tsv"
+    log: f"samples/{sample}/logs/deepvariant_intermediate/{sample}.{ref}.log"
+    benchmark: f"samples/{sample}/benchmarks/deepvariant_intermediate/{sample}.{ref}.tsv"
     container: f"docker://google/deepvariant:{config['DEEPVARIANT_VERSION']}"
-    threads: 4
-    message: "Executing {rule}: DeepVariant postprocess_variants for {input.tfrecord}."
+    params: reads = ','.join(abams)
+    threads: 60
+    message: "Executing {rule}: DeepVariant round1 for {input.bams}."
     shell:
         """
-        (/opt/deepvariant/bin/postprocess_variants \
+        (/opt/deepvariant/bin/run_deepvariant \
+            --model_type PACBIO \
+            --num_shards {threads} \
             --ref {input.reference} \
-            --infile {input.tfrecord} \
-            --outfile {output.vcf}) > {log} 2>&1
+            --reads {params.reads} \
+            --output_vcf {output.vcf}) > {log} 2>&1
         """
 
 
 haplotagged_abams = [f"samples/{sample}/whatshap_intermediate/{sample}.{ref}.{movie}.deepvariant.haplotagged.bam" for movie in movies]
 
 
-rule deepvariant_make_examples_round2:
+rule deepvariant_round2:
     input:
         bams = haplotagged_abams,
         bais = [f"{x}.bai" for x in haplotagged_abams],
-        reference = config['ref']['fasta']
-    output:
-        tfrecord = temp(f"samples/{sample}/deepvariant/examples/examples.tfrecord-{{shard}}-of-{config['N_SHARDS']:05}.gz"),
-        nonvariant_site_tfrecord = temp(f"samples/{sample}/deepvariant/examples/gvcf.tfrecord-{{shard}}-of-{config['N_SHARDS']:05}.gz")
-    log: f"samples/{sample}/logs/deepvariant/make_examples/{sample}.{ref}.{{shard}}-of-{config['N_SHARDS']:05}.log"
-    benchmark: f"samples/{sample}/benchmarks/deepvariant/make_examples/{sample}.{ref}.{{shard}}-of-{config['N_SHARDS']:05}.tsv"
-    container: f"docker://google/deepvariant:{config['DEEPVARIANT_VERSION']}"
-    params:
-        vsc_min_fraction_indels = "0.12",
-        shard = lambda wildcards: wildcards.shard,
-        reads = ','.join(haplotagged_abams)
-    message: "Executing {rule}: DeepVariant make_examples {wildcards.shard} for {input.bams}."
-    shell:
-        f"""
-        (/opt/deepvariant/bin/make_examples \
-            --norealign_reads \
-            --vsc_min_fraction_indels {{params.vsc_min_fraction_indels}} \
-            --alt_aligned_pileup=diff_channels \
-            --parse_sam_aux_fields \
-            --sort_by_haplotypes \
-            --mode calling \
-            --ref {{input.reference}} \
-            --reads {{params.reads}} \
-            --examples samples/{sample}/deepvariant/examples/examples.tfrecord@{config['N_SHARDS']}.gz \
-            --gvcf samples/{sample}/deepvariant/examples/gvcf.tfrecord@{config['N_SHARDS']}.gz \
-            --task {{wildcards.shard}}) > {{log}} 2>&1
-        """
-
-
-rule deepvariant_call_variants_gpu_round2:
-    input: expand(f"samples/{sample}/deepvariant/examples/examples.tfrecord-{{shard}}-of-{config['N_SHARDS']:05}.gz", shard=shards)
-    output: temp(f"samples/{sample}/deepvariant/{sample}.{ref}.call_variants_output.tfrecord.gz")
-    log: f"samples/{sample}/logs/deepvariant/call_variants/{sample}.{ref}.log"
-    benchmark: f"samples/{sample}/benchmarks/deepvariant/call_variants/{sample}.{ref}.tsv"
-    container: f"docker://google/deepvariant:{config['DEEPVARIANT_VERSION']}"
-    params: model = "/opt/models/pacbio/model.ckpt"
-    message: "Executing {rule}: DeepVariant call_variants for {input}."
-    threads: 8
-    shell:
-        f"""
-        (echo "CUDA_VISIBLE_DEVICES=" $CUDA_VISIBLE_DEVICES; \
-        /opt/deepvariant/bin/call_variants \
-            --outfile {{output}} \
-            --examples samples/{sample}/deepvariant/examples/examples.tfrecord@{config['N_SHARDS']}.gz \
-            --checkpoint {{params.model}}) > {{log}} 2>&1
-        """
-
-
-rule deepvariant_postprocess_variants_round2:
-    input:
-        tfrecord = f"samples/{sample}/deepvariant/{sample}.{ref}.call_variants_output.tfrecord.gz",
-        nonvariant_site_tfrecord = expand(f"samples/{sample}/deepvariant/examples/gvcf.tfrecord-{{shard:05}}-of-{config['N_SHARDS']:05}.gz",
-                                          shard=range(config['N_SHARDS'])),
         reference = config['ref']['fasta']
     output:
         vcf = f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.vcf.gz",
@@ -140,20 +38,27 @@ rule deepvariant_postprocess_variants_round2:
         gvcf = f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.g.vcf.gz",
         gvcf_index = f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.g.vcf.gz.tbi",
         report = f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.visual_report.html"
-    log: f"samples/{sample}/logs/deepvariant/postprocess_variants/{sample}.{ref}.log"
-    benchmark: f"samples/{sample}/benchmarks/deepvariant/postprocess_variants/{sample}.{ref}.tsv"
+    log: f"samples/{sample}/logs/deepvariant/{sample}.{ref}.log"
+    benchmark: f"samples/{sample}/benchmarks/deepvariant/{sample}.{ref}.tsv"
     container: f"docker://google/deepvariant:{config['DEEPVARIANT_VERSION']}"
-    message: "Executing {rule}: DeepVariant postprocess_variants for {input.tfrecord}."
-    threads: 4
+    params: reads = ','.join(haplotagged_abams)
+    threads: 60
+    message: "Executing {rule}: DeepVariant round1 for {input.bams}."
     shell:
-        f"""
-        (/opt/deepvariant/bin/postprocess_variants \
-            --ref {{input.reference}} \
-            --infile {{input.tfrecord}} \
-            --outfile {{output.vcf}} \
-            --nonvariant_site_tfrecord_path samples/{sample}/deepvariant/examples/gvcf.tfrecord@{config['N_SHARDS']}.gz \
-            --gvcf_outfile {{output.gvcf}}) > {{log}} 2>&1
         """
+        (/opt/deepvariant/bin/run_deepvariant \
+            --model_type PACBIO \
+            --make_examples_extra_args="sort_by_haplotypes=true,parse_sam_aux_fields=true" \
+            --num_shards {threads} \
+            --ref {input.reference} \
+            --reads {params.reads} \
+            --output_vcf {output.vcf} \
+            --output_gvcf {output.gvcf}) > {log} 2>&1
+        """
+# command above is for DV v1.0
+# if using DV v1.1,
+#   replace `--make_examples_extra_args="sort_by_haplotypes=true,parse_sam_aux_fields=true" \`
+#   with `--use_hp_information \`
 
 
 rule bcftools_stats:
@@ -166,6 +71,3 @@ rule bcftools_stats:
     conda: "envs/bcftools.yaml"
     message: "Executing {rule}: Calculating VCF statistics for {input}."
     shell: "(bcftools stats --threads 3 {params} {input} > {output}) > {log} 2>&1"
-
-
-# TODO: cleanup deepvariant intermediates
