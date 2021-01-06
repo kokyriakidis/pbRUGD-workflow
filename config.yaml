@@ -1,3 +1,25 @@
+smrtcells_targets:
+  - alignment
+  - stats  # req: alignment
+  - coverage  # req: alignment
+  - coverage_qc  # req: alignment
+  - kmers
+
+sample_targets:
+  - pbsv_svsig  # req: alignment in config['smrtcells_targets']
+  - pbsv_vcf  # req: alignment
+  - deepvariant  # req: alignment
+  - whatshap  # req: deepvariant
+  - coverage  # req: whatshap
+  - kmers  # req: kmers in config['smrtcells_targets']
+  - assembly
+
+cohort_targets:
+  - pbsv_vcf  # req: pbsv_svsig, pbsv_vcf in config['sample_targets']
+  - svpack  # req: pbsv_svsig, pbsv_vcf in config['sample_targets']
+  - deepvariant_vcf  # req: deepvariant, whatshap in config['sample_targets']
+  - slivar  # req: deepvariant, whatshap in config['sample_targets']
+
 # jellyfish and genomescope
 kmer_length: 21
 

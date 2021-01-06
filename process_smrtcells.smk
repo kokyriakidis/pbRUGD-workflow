@@ -44,60 +44,65 @@ targets = []
 
 # align reads with pbmm2
 include: 'rules/smrtcell_pbmm2.smk'
-targets.extend([f"samples/{sample}/aligned/{movie}.{ref}.{suffix}"
-                for suffix in ['bam', 'bam.bai']
-                for sample in list(ubam_dict.keys())
-                for movie in list(ubam_dict[sample].keys())])  # aBAMs from uBAMs
-targets.extend([f"samples/{sample}/aligned/{movie}.{ref}.{suffix}"
-                for suffix in ['bam', 'bam.bai']
-                for sample in list(fastq_dict.keys())
-                for movie in list(fastq_dict[sample].keys())]) # aBAMs from FASTQs
+if 'alignment' in config['smrtcells_targets']:
+    targets.extend([f"samples/{sample}/aligned/{movie}.{ref}.{suffix}"
+                    for suffix in ['bam', 'bam.bai']
+                    for sample in list(ubam_dict.keys())
+                    for movie in list(ubam_dict[sample].keys())])  # aBAMs from uBAMs
+    targets.extend([f"samples/{sample}/aligned/{movie}.{ref}.{suffix}"
+                    for suffix in ['bam', 'bam.bai']
+                    for sample in list(fastq_dict.keys())
+                    for movie in list(fastq_dict[sample].keys())]) # aBAMs from FASTQs
 
 # calculate coverage with mosdepth
 include: 'rules/smrtcell_mosdepth.smk'
-targets.extend([f"samples/{sample}/mosdepth/{movie}.{ref}.{suffix}"
-                for suffix in ['mosdepth.global.dist.txt', 'mosdepth.region.dist.txt',
-                               'mosdepth.summary.txt', 'regions.bed.gz']
-                for sample in list(ubam_dict.keys())
-                for movie in list(ubam_dict[sample].keys())])  # coverage from uBAMs
-targets.extend([f"samples/{sample}/mosdepth/{movie}.{ref}.{suffix}"
-                for suffix in ['mosdepth.global.dist.txt', 'mosdepth.region.dist.txt',
-                               'mosdepth.summary.txt', 'regions.bed.gz']
-                for sample in list(fastq_dict.keys())
-                for movie in list(fastq_dict[sample].keys())]) # coverage from FASTQs
+if 'coverage' in config['smrtcells_targets']:
+    targets.extend([f"samples/{sample}/mosdepth/{movie}.{ref}.{suffix}"
+                    for suffix in ['mosdepth.global.dist.txt', 'mosdepth.region.dist.txt',
+                                'mosdepth.summary.txt', 'regions.bed.gz']
+                    for sample in list(ubam_dict.keys())
+                    for movie in list(ubam_dict[sample].keys())])  # coverage from uBAMs
+    targets.extend([f"samples/{sample}/mosdepth/{movie}.{ref}.{suffix}"
+                    for suffix in ['mosdepth.global.dist.txt', 'mosdepth.region.dist.txt',
+                                'mosdepth.summary.txt', 'regions.bed.gz']
+                    for sample in list(fastq_dict.keys())
+                    for movie in list(fastq_dict[sample].keys())]) # coverage from FASTQs
 
 # smrtcell summary statistics
 include: 'rules/smrtcell_stats.smk'
-targets.extend([f"samples/{sample}/smrtcell_stats/{movie}.{suffix}"
-                for suffix in ['read_length_and_quality.tsv', 'read_length_summary.tsv', 'read_quality_summary.tsv' ]
-                for sample in list(ubam_dict.keys())
-                for movie in list(ubam_dict[sample].keys())])  # summary stats from uBAMs
-targets.extend([f"samples/{sample}/smrtcell_stats/{movie}.{suffix}"
-                for suffix in ['read_length_and_quality.tsv', 'read_length_summary.tsv', 'read_quality_summary.tsv' ]
-                for sample in list(fastq_dict.keys())
-                for movie in list(fastq_dict[sample].keys())]) # summary stats from FASTQs
+if 'stats' in config['smrtcells_targets']:
+    targets.extend([f"samples/{sample}/smrtcell_stats/{movie}.{suffix}"
+                    for suffix in ['read_length_and_quality.tsv', 'read_length_summary.tsv', 'read_quality_summary.tsv']
+                    for sample in list(ubam_dict.keys())
+                    for movie in list(ubam_dict[sample].keys())])  # summary stats from uBAMs
+    targets.extend([f"samples/{sample}/smrtcell_stats/{movie}.{suffix}"
+                    for suffix in ['read_length_and_quality.tsv', 'read_length_summary.tsv', 'read_quality_summary.tsv']
+                    for sample in list(fastq_dict.keys())
+                    for movie in list(fastq_dict[sample].keys())]) # summary stats from FASTQs
 
 # coverage-based library and sample QC metrics: mtDNA:autosome ratio and inferred chromosomal sex
 include: 'rules/smrtcell_coverage_qc.smk'
-targets.extend([f"samples/{sample}/mosdepth/{movie}.{ref}.{suffix}"
-                for suffix in ['mosdepth.inferred_sex.txt', 'mosdepth.M2_ratio.txt', 'gc_coverage.summary.txt']
-                for sample in list(ubam_dict.keys())
-                for movie in list(ubam_dict[sample].keys())])  # QC from uBAMs
-targets.extend([f"samples/{sample}/mosdepth/{movie}.{ref}.{suffix}"
-                for suffix in ['mosdepth.inferred_sex.txt', 'mosdepth.M2_ratio.txt', 'gc_coverage.summary.txt']
-                for sample in list(fastq_dict.keys())
-                for movie in list(fastq_dict[sample].keys())]) # QC from FASTQs
+if 'coverage_qc' in config['smrtcells_targets']:
+    targets.extend([f"samples/{sample}/mosdepth/{movie}.{ref}.{suffix}"
+                    for suffix in ['mosdepth.inferred_sex.txt', 'mosdepth.M2_ratio.txt', 'gc_coverage.summary.txt']
+                    for sample in list(ubam_dict.keys())
+                    for movie in list(ubam_dict[sample].keys())])  # QC from uBAMs
+    targets.extend([f"samples/{sample}/mosdepth/{movie}.{ref}.{suffix}"
+                    for suffix in ['mosdepth.inferred_sex.txt', 'mosdepth.M2_ratio.txt', 'gc_coverage.summary.txt']
+                    for sample in list(fastq_dict.keys())
+                    for movie in list(fastq_dict[sample].keys())]) # QC from FASTQs
 
 # count kmers with jellyfish and save modimers
 include: 'rules/smrtcell_jellyfish.smk'
-targets.extend([f"samples/{sample}/jellyfish/{movie}.{suffix}"
-                for suffix in ['jf', 'modimers.tsv.gz']
-                for sample in list(ubam_dict.keys())
-                for movie in list(ubam_dict[sample].keys())])  # kmers from uBAMs
-targets.extend([f"samples/{sample}/jellyfish/{movie}.{suffix}"
-                for suffix in ['jf', 'modimers.tsv.gz']
-                for sample in list(fastq_dict.keys())
-                for movie in list(fastq_dict[sample].keys())]) # kmers from FASTQs
+if 'kmers' in config['smrtcells_targets']:
+    targets.extend([f"samples/{sample}/jellyfish/{movie}.{suffix}"
+                    for suffix in ['jf', 'modimers.tsv.gz']
+                    for sample in list(ubam_dict.keys())
+                    for movie in list(ubam_dict[sample].keys())])  # kmers from uBAMs
+    targets.extend([f"samples/{sample}/jellyfish/{movie}.{suffix}"
+                    for suffix in ['jf', 'modimers.tsv.gz']
+                    for sample in list(fastq_dict.keys())
+                    for movie in list(fastq_dict[sample].keys())]) # kmers from FASTQs
 
 
 localrules: all
