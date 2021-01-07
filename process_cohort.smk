@@ -76,22 +76,26 @@ include: 'rules/cohort_common.smk'
 
 # generate a cohort level pbsv vcf or use singleton vcf
 include: 'rules/cohort_pbsv.smk'
-targets.extend([svpack_input, svpack_input + '.tbi'])
+if 'pbsv_vcf' in config['cohort_targets']:
+    targets.extend([svpack_input, svpack_input + '.tbi'])
 
 # annotate and filter pbsv vcf with svpack
 include: 'rules/cohort_svpack.smk'
-targets.extend([f"cohorts/{cohort}/svpack/{cohort}.{ref}.pbsv.svpack.{suffix}"
-                for suffix in ['vcf.gz', 'vcf.gz.tbi', 'tsv']])
+if 'svpack' in config['cohort_targets']:
+    targets.extend([f"cohorts/{cohort}/svpack/{cohort}.{ref}.pbsv.svpack.{suffix}"
+                    for suffix in ['vcf.gz', 'vcf.gz.tbi', 'tsv']])
 
 # generate a cohort level deepvariant vcf or use singleton vcf
 include: 'rules/cohort_glnexus.smk'
-targets.extend([slivar_input, slivar_input + '.tbi'])
+if 'deepvariant_vcf' in config['cohort_targets']:
+    targets.extend([slivar_input, slivar_input + '.tbi'])
 
 # annotate and filter deepvariant vcf
 include: 'rules/cohort_slivar.smk'
-targets.extend([f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.{infix}.{suffix}"
-                for infix in ['slivar', 'slivar.compound-hets']
-                for suffix in ['vcf.gz', 'vcf.gz.tbi', 'tsv']])
+if 'slivar' in config['cohort_targets']:
+    targets.extend([f"cohorts/{cohort}/slivar/{cohort}.{ref}.deepvariant.phased.{infix}.{suffix}"
+                    for infix in ['slivar', 'slivar.compound-hets']
+                    for suffix in ['vcf.gz', 'vcf.gz.tbi', 'tsv']])
 
 
 ruleorder: split_glnexus_vcf > whatshap_phase > whatshap_bcftools_concat > bcftools_bcf2vcf > bgzip_vcf

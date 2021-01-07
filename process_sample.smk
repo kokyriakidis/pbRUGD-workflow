@@ -6,11 +6,11 @@ shell.prefix("set -o pipefail; umask 002; ")  # set g+w
 configfile: "workflow/reference.yaml"         # reference information
 configfile: "workflow/config.yaml"            # general configuration
 
-all_chroms = config['ref']['autosomes'] + config['ref']['sex_chrom'] + config['ref']['mit_chrom']
 
 # sample will be provided at command line with `--config sample=$SAMPLE`
 sample = config['sample']
 ref = config['ref']['shortname']
+all_chroms = config['ref']['autosomes'] + config['ref']['sex_chrom'] + config['ref']['mit_chrom']
 print(f"Processing sample {sample} with reference {ref}.")
 
 # scan samples/{sample}/aligned to generate a dict of aBAMs
@@ -50,52 +50,63 @@ include: 'rules/sample_common.smk'
 
 # call structural variants with pbsv
 include: 'rules/sample_pbsv.smk'
-targets.extend([f"samples/{sample}/pbsv/{sample}.{ref}.pbsv.{suffix}"
-                for suffix in ['vcf.gz', 'vcf.gz.tbi']])  # VCFs
-# targets.append(f"samples/{sample}/pbsv/{sample}.{ref}.removed_intermediates.txt")  # remove regions dir
+if 'pbsv_svsig' in config['sample_targets']:
+    # sv signatures for joint calling
+    targets.extend([f"samples/{sample}/pbsv/svsig/{movie}.{ref}.{chrom}.pbsv.svsig.gz"
+                    for movie in movies
+                    for chrom in all_chroms])
+if 'pbsv_vcf' in config['sample_targets']:
+    # pbsv VCFs
+    targets.extend([f"samples/{sample}/pbsv/{sample}.{ref}.pbsv.{suffix}"
+                    for suffix in ['vcf.gz', 'vcf.gz.tbi']])
 
 # call small variants with DeepVariant
 include: 'rules/sample_deepvariant.smk'
-targets.extend([f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.{suffix}"
-                for suffix in ['vcf.gz', 'vcf.gz.tbi', 'g.vcf.gz', 'g.vcf.gz.tbi',
-                               'visual_report.html', 'vcf.stats.txt']])
-                # VCFs, gVCFs, reports, and stats
-# targets.append(f"samples/{sample}/deepvariant/{sample}.{ref}.removed_examples.txt")  # remove examples dir
+if 'deepvariant' in config['sample_targets']:
+    # deepvariant VCFs, gVCFs, reports, and stats
+    targets.extend([f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.{suffix}"
+                    for suffix in ['vcf.gz', 'vcf.gz.tbi', 'g.vcf.gz', 'g.vcf.gz.tbi',
+                                'visual_report.html', 'vcf.stats.txt']])
 
 # phase small variants with WhatsHap and haplotag BAM
 include: 'rules/sample_whatshap.smk'
-targets.extend([f"samples/{sample}/whatshap/{sample}.{ref}.deepvariant.{suffix}"
-                for suffix in ['phased.vcf.gz', 'phased.vcf.gz.tbi', 'phased.gtf',
-                               'phased.tsv', 'phased.blocklist',
-                               'haplotagged.bam', 'haplotagged.bam.bai']])
-                # phased VCFs, stats, phase block GTFs, and haplotagged BAMs
-#targets.append(f"samples/{sample}/whatshap/{sample}.{ref}.removed_intermediates.txt")  # remove regions dir
+if 'whatshap' in config['sample_targets']:
+    # phased VCFs, stats, phase block GTFs, and haplotagged BAMs
+    targets.extend([f"samples/{sample}/whatshap/{sample}.{ref}.deepvariant.{suffix}"
+                    for suffix in ['phased.vcf.gz', 'phased.vcf.gz.tbi', 'phased.gtf',
+                                'phased.tsv', 'phased.blocklist',
+                                'haplotagged.bam', 'haplotagged.bam.bai']])
 
 # calculate coverage of haplotagged sample aBAM with mosdepth
 include: 'rules/sample_mosdepth.smk'
 include: 'rules/sample_gc_coverage.smk'
-targets.extend([f"samples/{sample}/mosdepth/{sample}.{ref}.deepvariant.haplotagged.{suffix}"
-                for suffix in ['mosdepth.global.dist.txt', 'mosdepth.region.dist.txt',
-                               'mosdepth.summary.txt', 'regions.bed.gz']])
-                # coverage from merged haplotagged aBAM
-targets.extend([f"samples/{sample}/mosdepth/{sample}.{ref}.gc_coverage.summary.txt"])
+if 'coverage' in config['sample_targets']:
+    # coverage from merged haplotagged aBAM
+    targets.extend([f"samples/{sample}/mosdepth/{sample}.{ref}.deepvariant.haplotagged.{suffix}"
+                    for suffix in ['mosdepth.global.dist.txt', 'mosdepth.region.dist.txt',
+                                'mosdepth.summary.txt', 'regions.bed.gz']])
+    targets.extend([f"samples/{sample}/mosdepth/{sample}.{ref}.gc_coverage.summary.txt"])
 
 # merge kmers with jellyfish
 include: 'rules/sample_jellyfish.smk'
-targets.extend([f"samples/{sample}/jellyfish/{sample}.{suffix}"
-                for suffix in ['jf']])  # jellyfish kmer database
-
-# measure kmer consistency of SMRT Cells
 include: 'rules/sample_kmer_consistency.smk'
-targets.append(f"samples/{sample}/jellyfish/{sample}.kmerconsistency.txt")
+if 'kmers' in config['sample_targets']:
+    # jellyfish kmer database
+    targets.extend([f"samples/{sample}/jellyfish/{sample}.{suffix}"
+                    for suffix in ['jf']])
+    # measure kmer consistency of SMRT Cells
+    targets.append(f"samples/{sample}/jellyfish/{sample}.kmerconsistency.txt")
 
 # assemble with hifiasm
 include: 'rules/sample_hifiasm.smk'
-targets.extend([f"samples/{sample}/hifiasm/{sample}.asm.{infix}.{suffix}"
-               for suffix in ['fasta.gz', 'fasta.stats.txt']
-               for infix in ['a_ctg', 'p_ctg']])  # assembly and stats
-targets.extend([f"samples/{sample}/hifiasm/{sample}.asm.{ref}.{suffix}"
-               for suffix in ['bam', 'bam.bai']])  # assembly alignments
+if 'assembly' in config['sample_targets']:
+    # assembly and stats
+    targets.extend([f"samples/{sample}/hifiasm/{sample}.asm.{infix}.{suffix}"
+                for suffix in ['fasta.gz', 'fasta.stats.txt']
+                for infix in ['a_ctg', 'p_ctg']])
+    # assembly alignments
+    targets.extend([f"samples/{sample}/hifiasm/{sample}.asm.{ref}.{suffix}"
+                for suffix in ['bam', 'bam.bai']])
 
 
 localrules: all
