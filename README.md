@@ -62,3 +62,50 @@ This repo consists of three [Snakemake](https://snakemake.readthedocs.io/en/stab
 - `config.yaml` contains file paths and version numbers for docker images
 - `reference.yaml` contains file paths and names related to reference
 - `*.cluster.yaml` contains example cluster configuration for a slurm cluster with a `compute` queue for general compute and a `ml` queue for GPU.
+
+## Defining cohorts and samples
+The `cohort_yaml` specified in `config.yaml` defines cohorts and samples.  Sample-level analysis 
+
+A cohort includes:
+* `id`: an identifier to refer to the cohort in `process_cohort.sh` and in output file name
+* `phenotypes`: an optional list of [Human Phenotype Ontology](https://hpo.jax.org/app/) terms that describe the disease phenotype for the cohort, used to calculate Phrank gene-to-phenotype similarity scores
+* `affecteds`: an optional list of samples in the cohort with the disease phenotype
+* `unaffecteds`: an optional list of samples in the cohort without the disease phenotype
+* other attributes are permitted but ignored
+
+Cohort-level analysis produces joint callsets that include all samples in the `affecteds` and `unaffecteds` lists.  It filters the callsets for sets of variants that are present in all `affecteds` but no `unaffecteds`.
+
+A sample in the `affecteds` and `unaffecteds` lists includes:
+* `id`: an identifier to refer to the sample in `process_sample.sh`, output file names, and BAM (SM tag) and VCF (sample column) files
+* `sex`: the optional sex of the sample - `MALE` or `FEMALE` - to be confirmed against sex inferred from chrX:chrY and chrX:chr2 coverage depth ratios in `scripts/infer_sex_from_coverage.py`
+* `parents`: an optional list of the identifiers of the sample's parents, used to generate a cohort pedigree `.ped` file
+* other attributes are permitted but ignored
+
+Sample-level analysis produces solo callsets and de novo assemblies.
+A sample is allowed to belong to more than one cohort.
+
+### Example `cohort.yaml`
+```
+- id: EpilepsyTrio17
+  phenotypes:
+    - "HP:0001250" # seizure
+  affecteds:
+    - id: family17-01
+      sex: MALE
+      parents: [family17-02, family17-03]
+  unaffecteds:
+    - id: family17-02
+      sex: FEMALE
+    - id: family17-03
+      sex: MALE
+
+- id: YorubanTrio
+  unaffecteds:
+    - id: NA19240
+      sex: FEMALE
+      parents: [NA19238, NA19239]
+    - id: NA19238
+      sex: FEMALE
+    - id: NA19239
+      sex: MALE
+```
