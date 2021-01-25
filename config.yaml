@@ -31,9 +31,6 @@ N_SHARDS: 256
 # glnexus
 GLNEXUS_VERSION: "v1.2.7"
 
-# gfatools
-GFATOOLS_VERSION: "0.4"
-
 # slivar
 slivar_js: "resources/slivar/slivar-functions.js"
 
