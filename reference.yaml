@@ -3,6 +3,7 @@ ref:
   shortname: 'GRCh38'
   fasta: 'reference/human_GRCh38_no_alt_analysis_set.fasta'
   index: 'reference/human_GRCh38_no_alt_analysis_set.fasta.fai'
+  last_index: 'reference/human_GRCh38_no_alt_analysis_set.RY32.lastdb'
   modimers: 'reference/human_GRCh38_no_alt_analysis_set.modimers.tsv.gz'
   chr_lengths: 'reference/human_GRCh38_no_alt_analysis_set.chr_lengths.txt'
   ploidy: 'reference/human_GRCh38_no_alt_analysis_set.ploidy.txt'
