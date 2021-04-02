@@ -50,11 +50,6 @@ include: 'rules/sample_common.smk'
 
 # call structural variants with pbsv
 include: 'rules/sample_pbsv.smk'
-if 'pbsv_svsig' in config['sample_targets']:
-    # sv signatures for joint calling
-    targets.extend([f"samples/{sample}/pbsv/svsig/{movie}.{ref}.{chrom}.pbsv.svsig.gz"
-                    for movie in movies
-                    for chrom in all_chroms])
 if 'pbsv_vcf' in config['sample_targets']:
     # pbsv VCFs
     targets.extend([f"samples/{sample}/pbsv/{sample}.{ref}.pbsv.{suffix}"
