@@ -2,8 +2,6 @@
 
 ## Workflow for the comprehensive detection and prioritization of variants in human genomes with PacBio HiFi reads
 
-_Note_: Workflow is committed.  Web app code to come.
-
 ## Authors
 
 - William Rowell ([@williamrowell](https://github.com/williamrowell))
