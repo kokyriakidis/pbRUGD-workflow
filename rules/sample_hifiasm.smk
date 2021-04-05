@@ -109,10 +109,10 @@ rule htsbox:
         bam = f"samples/{sample}/hifiasm/{sample}.asm.{ref}.bam",
         bai = f"samples/{sample}/hifiasm/{sample}.asm.{ref}.bam.bai",
         reference = config['ref']['fasta']
-    output: f"samples/{sample}/hifiasm/{sample}.asm.{ref}.htsbox.vcf.gz"
+    output: f"samples/{sample}/hifiasm/{sample}.asm.{ref}.htsbox.vcf"
     log: f"samples/{sample}/logs/htsbox/{sample}.asm.log"
     benchmark: f"samples/{sample}/htsbox/{sample}.asm.tsv"
     params: '-q20'
     conda: "envs/htsbox.yaml"
     message: "Calling variants from {{input.bam}} using htsbox."
-    shell: "(htsbox pileup {params} -c -f {input.reference} {input.bam} | bgzip -c > {output})> {{log}} 2>&1"
+    shell: "(htsbox pileup {params} -c -f {input.reference} {input.bam} > {output})> {{log}} 2>&1"
