@@ -11,7 +11,7 @@ rule generate_tg_bed:
         tg_list = config['ref']['tg_list'],
         fai = config['ref']['index']
     output: config['ref']['tg_bed']
-    log: f"logs/generate_tg_bed.log"
+    log: "logs/generate_tg_bed.log"
     conda: "envs/bedtools.yaml"
     params: slop = 1000
     message: "Executing {rule}: Adding {params.slop}bp slop to {input.tg_list} to generate {output}."
@@ -21,6 +21,17 @@ rule generate_tg_bed:
         | bedtools slop -b {params.slop} -g {input.fai} -i - \
         > {output}) > {log} 2>&1
         """
+
+
+rule generate_last_index:
+    input: config['ref']['fasta']
+    output: config['ref']['last_index']
+    log: "logs/generate_last_index.log"
+    conda: "envs/last.yaml"
+    params: "-uRY32 -R01"
+    threads: 24
+    message: "Executing {rule}: Generating last index of {input} using params: {params}"
+    shell: "(lastdb -P{threads} {params} {output} {input}) > {log} 2>&1"
 
 
 rule last_align:
