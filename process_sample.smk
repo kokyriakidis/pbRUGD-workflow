@@ -72,6 +72,13 @@ if 'whatshap' in config['sample_targets']:
                                 'phased.tsv', 'phased.blocklist',
                                 'haplotagged.bam', 'haplotagged.bam.bai']])
 
+# genotype STRs
+include: 'rules/sample_tandem_genotypes.smk'
+if 'tandem-genotypes' in config['sample_targets']:
+    # tandem-genotypes tabular output and plots
+    targets.extend([f"samples/{sample}/tandem-genotypes/{sample}.tandem-genotypes.{suffix}"
+                   for suffix in ['txt', 'pdf']])
+
 # calculate coverage of haplotagged sample aBAM with mosdepth
 include: 'rules/sample_mosdepth.smk'
 include: 'rules/sample_gc_coverage.smk'

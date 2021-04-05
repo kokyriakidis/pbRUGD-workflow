@@ -28,6 +28,10 @@ deepvariant_postprocess_variants_round2:
   extra: "--constraint=avx512"
 bcftools_stats:
   cpus: 4
+generate_last_index:
+  cpus: 24
+last_align:
+  cpus: 24
 jellyfish_histo:
   cpus: 24
 samtools_fasta:

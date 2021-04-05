@@ -15,6 +15,10 @@ deepvariant_round2:
   cpus: 60
 bcftools_stats:
   cpus: 4
+generate_last_index:
+  cpus: 24
+last_align:
+  cpus: 24
 jellyfish_histo:
   cpus: 48
 samtools_fasta:
