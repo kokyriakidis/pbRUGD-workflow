@@ -6,7 +6,6 @@ smrtcells_targets:
   - kmers
 
 sample_targets:
-  - pbsv_svsig  # req: alignment in config['smrtcells_targets']
   - pbsv_vcf  # req: alignment
   - deepvariant  # req: alignment
   - whatshap  # req: deepvariant

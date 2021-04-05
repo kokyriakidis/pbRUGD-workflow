@@ -50,11 +50,6 @@ include: 'rules/sample_common.smk'
 
 # call structural variants with pbsv
 include: 'rules/sample_pbsv.smk'
-if 'pbsv_svsig' in config['sample_targets']:
-    # sv signatures for joint calling
-    targets.extend([f"samples/{sample}/pbsv/svsig/{movie}.{ref}.{chrom}.pbsv.svsig.gz"
-                    for movie in movies
-                    for chrom in all_chroms])
 if 'pbsv_vcf' in config['sample_targets']:
     # pbsv VCFs
     targets.extend([f"samples/{sample}/pbsv/{sample}.{ref}.pbsv.{suffix}"
@@ -81,7 +76,7 @@ if 'whatshap' in config['sample_targets']:
 include: 'rules/sample_tandem_genotypes.smk'
 if 'tandem-genotypes' in config['sample_targets']:
     # tandem-genotypes tabular output and plots
-    targets.exted([f"samples/{sample}/tandem-genotypes/{sample}.tandem_repeats.{suffix}"
+    targets.extend([f"samples/{sample}/tandem-genotypes/{sample}.tandem-genotypes.{suffix}"
                    for suffix in ['txt', 'pdf']])
 
 # calculate coverage of haplotagged sample aBAM with mosdepth
