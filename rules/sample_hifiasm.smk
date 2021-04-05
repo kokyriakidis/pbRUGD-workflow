@@ -109,7 +109,7 @@ rule htsbox:
         bam = f"samples/{sample}/hifiasm/{sample}.asm.{ref}.bam",
         bai = f"samples/{sample}/hifiasm/{sample}.asm.{ref}.bam.bai",
         reference = config['ref']['fasta']
-    output: f"samples/{sample}/hifiasm/{sample}.asm.htsbox.vcf.gz"
+    output: f"samples/{sample}/hifiasm/{sample}.asm.{ref}.htsbox.vcf.gz"
     log: f"samples/{sample}/logs/htsbox/{sample}.asm.log"
     benchmark: f"samples/{sample}/htsbox/{sample}.asm.tsv"
     params: '-q20'
