@@ -102,6 +102,9 @@ if 'assembly' in config['sample_targets']:
     # assembly alignments
     targets.extend([f"samples/{sample}/hifiasm/{sample}.asm.{ref}.{suffix}"
                 for suffix in ['bam', 'bam.bai']])
+    # assembly htsbox variants
+    targets.extend([f"samples/{sample}/hifiasm/{sample}.asm.{ref}.htsbox.{suffix}"
+                for suffix in ['vcf.gz', 'vcf.gz.tbi']])
 
 
 localrules: all
