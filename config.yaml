@@ -33,7 +33,6 @@ GLNEXUS_VERSION: "v1.2.7"
 
 # last/tandem-genotypes
 score_matrix: "resources/tandem-genotypes/score_matrix.par"
-tg_targets: "resources/tandem-genotypes/targets.bed"
 
 # slivar
 slivar_js: "resources/slivar/slivar-functions.js"
