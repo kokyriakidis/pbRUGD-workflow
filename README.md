@@ -35,6 +35,7 @@ This repo consists of three [Snakemake](https://snakemake.readthedocs.io/en/stab
 - assemble reads with [hifiasm](https://github.com/chhylp123/hifiasm) and calculate stats with [calN50.js](https://github.com/lh3/calN50)
 - align assembly to reference with [minimap2](https://github.com/lh3/minimap2)
 - check for sample swaps by calculate consistency of kmers between sequencing runs
+- genotype tandem repeat expansions with [tandem-genotypes](https://github.com/mcfrith/tandem-genotypes)
 
 ### `process_cohort`
 
