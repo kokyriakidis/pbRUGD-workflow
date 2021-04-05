@@ -13,7 +13,7 @@ deepvariant_round1:
   cpus: 60
 deepvariant_round2:
   cpus: 60
-bcftools_stats:
+deepvariant_bcftools_stats:
   cpus: 4
 generate_last_index:
   cpus: 24
@@ -29,6 +29,8 @@ bgzip_fasta:
   cpus: 4
 minimap2_align_assembly:
   cpus: 24
+htsbox_bcftools_stats:
+  cpus: 4
 samtools_sam_to_bam:
   cpus: 8
 samtools_sort_alignments:

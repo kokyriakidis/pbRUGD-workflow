@@ -111,7 +111,7 @@ if 'assembly' in config['sample_targets']:
                 for suffix in ['bam', 'bam.bai']])
     # assembly htsbox variants
     targets.extend([f"samples/{sample}/hifiasm/{sample}.asm.{ref}.htsbox.{suffix}"
-                for suffix in ['vcf.gz', 'vcf.gz.tbi']])
+                for suffix in ['vcf.gz', 'vcf.gz.tbi', 'vcf.stats.txt']])
 
 
 localrules: all

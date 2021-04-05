@@ -87,6 +87,7 @@ rule align_hifiasm:
         max_chunk = 200000,
         minimap2_args = "-L --secondary=no --eqx -ax asm5",
         minimap2_threads = 10,
+        readgroup = f"@RG\tID:{sample}_hifiasm\tSM:{sample}",
         samtools_threads = 3
     threads: 16  # minimap2 + samtools(+1) + 2x awk + seqtk + cat
     conda: "envs/align_hifiasm.yaml"
@@ -96,7 +97,8 @@ rule align_hifiasm:
         (cat {input.query} \
             | seqtk seq -l {params.max_chunk} - \
             | awk '{{ if ($1 ~ />/) {{ n=$1; i=0; }} else {{ i++; print n "." i; print $0; }} }}' \
-            | minimap2 -t {params.minimap2_threads} {params.minimap2_args} {input.target} - \
+            | minimap2 -t {params.minimap2_threads} {params.minimap2_args} \
+                -R '{params.readgroup}' {input.target} - \
                 | awk '{{ if ($1 !~ /^@/) \
                                 {{ Rct=split($1,R,"."); N=R[1]; for(i=2;i<Rct;i++) {{ N=N"."R[i]; }} print $0 "\tTG:Z:" N; }} \
                               else {{ print; }} }}' \
@@ -116,3 +118,15 @@ rule htsbox:
     conda: "envs/htsbox.yaml"
     message: "Calling variants from {{input.bam}} using htsbox."
     shell: "(htsbox pileup {params} -c -f {input.reference} {input.bam} > {output})> {{log}} 2>&1"
+
+
+rule htsbox_bcftools_stats:
+    input: f"samples/{sample}/hifiasm/{sample}.asm.{ref}.htsbox.vcf.gz"
+    output: f"samples/{sample}/hifiasm/{sample}.asm.{ref}.htsbox.vcf.stats.txt"
+    log: f"samples/{sample}/logs/bcftools/stats/{sample}.asm.{ref}.htsbox.vcf.log"
+    benchmark: f"samples/{sample}/benchmarks/bcftools/stats/{sample}.asm.{ref}.htsbox.vcf.tsv"
+    params: f"--fasta-ref {config['ref']['fasta']} -s {sample}"
+    threads: 4
+    conda: "envs/bcftools.yaml"
+    message: "Executing {rule}: Calculating VCF statistics for {input}."
+    shell: "(bcftools stats --threads 3 {params} {input} > {output}) > {log} 2>&1"
