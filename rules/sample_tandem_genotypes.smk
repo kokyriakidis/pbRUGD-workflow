@@ -38,11 +38,11 @@ rule generate_last_index:
 
 rule last_align:
     input:
+        [f"{config['ref']['last_index']}.{suffix}"
+         for suffix in ['bck', 'des', 'prj', 'sds', 'ssp', 'suf', 'tis']],
         bam = f"samples/{sample}/whatshap/{sample}.{ref}.deepvariant.haplotagged.bam",
         bed = config['ref']['tg_bed'],
-        score_matrix = config['score_matrix'],
-        [f"{config['ref']['last_index']}.{suffix}"
-         for suffix in ['bck', 'des', 'prj', 'sds', 'ssp', 'suf', 'tis']]
+        score_matrix = config['score_matrix']
     output: temp(f"samples/{sample}/tandem-genotypes/{sample}.maf.gz")
     log: f"samples/{sample}/logs/last/align/{sample}.log"
     benchmark: f"samples/{sample}/benchmarks/last/align/{sample}.tsv"
