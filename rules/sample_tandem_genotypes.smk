@@ -23,15 +23,15 @@ rule generate_tg_bed:
         """
 
 
-rule generate_last_index:
-    input: config['ref']['fasta']
-    output: config['ref']['last_index']
-    log: "logs/generate_last_index.log"
-    conda: "envs/last.yaml"
-    params: "-uRY32 -R01"
-    threads: 24
-    message: "Executing {rule}: Generating last index of {input} using params: {params}"
-    shell: "(lastdb -P{threads} {params} {output} {input}) > {log} 2>&1"
+#rule generate_last_index:
+#    input: config['ref']['fasta']
+#    output: config['ref']['last_index']
+#    log: "logs/generate_last_index.log"
+#    conda: "envs/last.yaml"
+#    params: "-uRY32 -R01"
+#    threads: 24
+#    message: "Executing {rule}: Generating last index of {input} using params: {params}"
+#    shell: "(lastdb -P{threads} {params} {output} {input}) > {log} 2>&1"
 
 
 rule last_align:
@@ -65,7 +65,7 @@ rule tandem_genotypes:
     benchmark: f"samples/{sample}/benchmarks/tandem-genotypes/{sample}.tsv"
     conda: "envs/tandem-genotypes.yaml"
     message: "Executing {rule}: Genotyping tandem repeats from {input.repeats} regions in {input.maf}."
-    shell: "tandem-genotypes {input.repeats} {input.maf} > {output}"
+    shell: "(tandem-genotypes {input.repeats} {input.maf} > {output}) > {log} 2>&1"
 
 
 rule tandem_genotypes_plot:
@@ -76,4 +76,4 @@ rule tandem_genotypes_plot:
     conda: "envs/tandem-genotypes.yaml"
     params: top_N_plots = 100
     message: "Executing {rule}: Plotting tandem repeats from {input}."
-    shell: "tandem-genotypes-plot -n {params.top_N_plots} {input} {output}"
+    shell: "(tandem-genotypes-plot -n {params.top_N_plots} {input} {output}) > {log} 2>&1"
