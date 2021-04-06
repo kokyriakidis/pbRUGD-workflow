@@ -113,7 +113,7 @@ rule htsbox:
         reference = config['ref']['fasta']
     output: f"samples/{sample}/hifiasm/{sample}.asm.{ref}.htsbox.vcf"
     log: f"samples/{sample}/logs/htsbox/{sample}.asm.log"
-    benchmark: f"samples/{sample}/htsbox/{sample}.asm.tsv"
+    benchmark: f"samples/{sample}/benchmarks/htsbox/{sample}.asm.tsv"
     params: '-q20'
     conda: "envs/htsbox.yaml"
     message: "Calling variants from {{input.bam}} using htsbox."
