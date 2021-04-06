@@ -1,9 +1,6 @@
 shards = [f"{x:05}" for x in range(config['N_SHARDS'])]
 
 
-localrules: cleanup_deepvariant_intermediates
-
-
 rule deepvariant_make_examples_round1:
     input:
         bams = abams,
@@ -25,6 +22,9 @@ rule deepvariant_make_examples_round1:
             --norealign_reads \
             --vsc_min_fraction_indels {{params.vsc_min_fraction_indels}} \
             --alt_aligned_pileup=diff_channels \
+            --add_hp_channel \
+            --sort_by_haplotypes \
+            --parse_sam_aux_fields \
             --mode calling \
             --ref {{input.reference}} \
             --reads {{params.reads}} \
@@ -98,8 +98,9 @@ rule deepvariant_make_examples_round2:
             --norealign_reads \
             --vsc_min_fraction_indels {{params.vsc_min_fraction_indels}} \
             --alt_aligned_pileup=diff_channels \
-            --parse_sam_aux_fields \
+            --add_hp_channel \
             --sort_by_haplotypes \
+            --parse_sam_aux_fields \
             --mode calling \
             --ref {{input.reference}} \
             --reads {{params.reads}} \

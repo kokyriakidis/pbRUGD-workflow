@@ -1,6 +1,3 @@
-import tempfile
-
-
 ruleorder: pbmm2_align_ubam > pbmm2_align_fastq
 
 
@@ -33,7 +30,6 @@ rule pbmm2_align_ubam:
             {input.query} \
             {output.bam}) > {log} 2>&1
         """
-
 
 
 rule pbmm2_align_fastq:

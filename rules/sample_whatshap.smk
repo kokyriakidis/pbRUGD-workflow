@@ -1,6 +1,5 @@
 localrules: split_deepvariant_vcf_round1, split_deepvariant_vcf_round2
 localrules: whatshap_bcftools_concat_round1, whatshap_bcftools_concat_round2
-localrules: cleanup_whatshap_intermediates
 
 
 rule split_deepvariant_vcf_round1:

@@ -24,8 +24,8 @@ cohort_targets:
 kmer_length: 21
 
 # deepvariant
-#DEEPVARIANT_VERSION: "1.0.0"  # CPU-only, will require modifying threads for call_variants rules
-DEEPVARIANT_VERSION: "1.0.0-gpu"  # GPU
+#DEEPVARIANT_VERSION: "1.1.0"  # CPU-only, will require modifying threads for call_variants rules
+DEEPVARIANT_VERSION: "1.1.0-gpu"  # GPU
 N_SHARDS: 256
 
 # glnexus
