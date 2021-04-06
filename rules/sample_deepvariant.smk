@@ -157,7 +157,7 @@ rule deepvariant_postprocess_variants_round2:
         """
 
 
-rule bcftools_stats:
+rule deepvariant_bcftools_stats:
     input: f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.vcf.gz"
     output: f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.vcf.stats.txt"
     log: f"samples/{sample}/logs/bcftools/stats/{sample}.{ref}.deepvariant.vcf.log"

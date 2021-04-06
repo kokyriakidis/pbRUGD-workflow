@@ -6,13 +6,13 @@ smrtcells_targets:
   - kmers
 
 sample_targets:
-  - pbsv_svsig  # req: alignment in config['smrtcells_targets']
   - pbsv_vcf  # req: alignment
   - deepvariant  # req: alignment
   - whatshap  # req: deepvariant
   - coverage  # req: whatshap
   - kmers  # req: kmers in config['smrtcells_targets']
   - assembly
+  - tandem-genotypes  # req: whatshap
 
 cohort_targets:
   - pbsv_vcf  # req: pbsv_svsig, pbsv_vcf in config['sample_targets']
@@ -30,6 +30,9 @@ N_SHARDS: 256
 
 # glnexus
 GLNEXUS_VERSION: "v1.2.7"
+
+# last/tandem-genotypes
+score_matrix: "resources/tandem-genotypes/score_matrix.par"
 
 # slivar
 slivar_js: "resources/slivar/slivar-functions.js"
