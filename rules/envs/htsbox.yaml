@@ -2,4 +2,4 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
-  - htsbox==r346-1
+  - htsbox==r346
