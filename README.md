@@ -1,3 +1,6 @@
+# All future development will occur at https://github.com/PacificBiosciences/pb-human-wgs-workflow-snakemake.
+
+
 # pbRUGD-workflow
 
 ## Workflow for the comprehensive detection and prioritization of variants in human genomes with PacBio HiFi reads
