@@ -14,6 +14,7 @@ ref:
   tg_list: "resources/tandem-genotypes/hg38-disease-tr.txt"
   tg_bed: "resources/tandem-genotypes/hg38-disease-tr.slop.bed"
   gnomad_gnotate: 'resources/slivar/gnomad.hg38.v3.custom.zip'
+  hprc_dv_gnotate: 'resources/slivar/hprc.deepvariant.glnexus.hg38.v1.zip'
   eee_vcf: 'resources/eee/EEE_SV-Pop_1.ALL.sites.20181204.vcf.gz'
   gnomadsv_vcf: 'resources/gnomadsv/nstd166.GRCh38.variant_call.vcf.gz'
   hprc_pbsv_vcf: 'resources/hprc/hprc.GRCh38.pbsv.vcf.gz'
