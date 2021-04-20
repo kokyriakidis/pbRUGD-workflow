@@ -16,13 +16,15 @@ rule pbsv_discover:
     benchmark: f"samples/{sample}/benchmarks/pbsv/discover/{{movie}}.{ref}.{{region}}.tsv"
     params:
         region = lambda wildcards: wildcards.region,
-        loglevel = "INFO"
+        loglevel = "INFO",
+        min_gap_comp_id_perc = 97.0
     conda: "envs/pbsv.yaml"
     message: "Executing {rule}: Discovering structural variant signatures in {wildcards.region} from {input.bam}."
     shell:
         """
         (pbsv discover \
             --log-level {params.loglevel} \
+            --min-gap-comp-id-perc {params.min_gap_comp_id_perc} \
             --region {wildcards.region} \
             --tandem-repeats {input.tr_bed} \
             {input.bam} {output}) > {log} 2>&1
@@ -38,7 +40,7 @@ rule pbsv_call:
     benchmark: f"samples/{sample}/benchmarks/pbsv/call/{sample}.{ref}.{{region}}.tsv"
     params:
         region = lambda wildcards: wildcards.region,
-        extra = "--ccs -m 20 -A 3 -O 3 -P 20",
+        extra = "--ccs -m 20 -A 3 -O 3",
         loglevel = "INFO"
     threads: 8
     conda: "envs/pbsv.yaml"
