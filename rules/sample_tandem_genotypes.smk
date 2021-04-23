@@ -23,19 +23,23 @@ rule generate_tg_bed:
         """
 
 
-#rule generate_last_index:
-#    input: config['ref']['fasta']
-#    output: config['ref']['last_index']
-#    log: "logs/generate_last_index.log"
-#    conda: "envs/last.yaml"
-#    params: "-uRY32 -R01"
-#    threads: 24
-#    message: "Executing {rule}: Generating last index of {input} using params: {params}"
-#    shell: "(lastdb -P{threads} {params} {output} {input}) > {log} 2>&1"
+rule generate_last_index:
+    input: config['ref']['fasta']
+    output:
+        [f"{config['ref']['last_index']}.{suffix}"
+         for suffix in ['bck', 'des', 'prj', 'sds', 'ssp', 'suf', 'tis']]
+    log: "logs/generate_last_index.log"
+    conda: "envs/last.yaml"
+    params: "-uRY32 -R01"
+    threads: 24
+    message: "Executing {rule}: Generating last index of {input} using params: {params}"
+    shell: f"(lastdb -P{{threads}} {{params}} {config['ref']['last_index']} {{input}}) > {{log}} 2>&1"
 
 
 rule last_align:
     input:
+        [f"{config['ref']['last_index']}.{suffix}"
+         for suffix in ['bck', 'des', 'prj', 'sds', 'ssp', 'suf', 'tis']],
         bam = f"samples/{sample}/whatshap/{sample}.{ref}.deepvariant.haplotagged.bam",
         bed = config['ref']['tg_bed'],
         score_matrix = config['score_matrix']
