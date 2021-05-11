@@ -32,7 +32,7 @@ ubam_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie
 ubam_dict = {}
 fastq_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}[Ue]?_\d{6}_\d{6}).fastq.gz')
 fastq_dict = {}
-for infile in Path(f'smrtcells/ready/{sample}').glob('*.ccs.bam'):
+for infile in Path(f'smrtcells/ready/{sample}').glob('*.bam'):
     ubam_match = ubam_pattern.search(str(infile))
     if ubam_match and (ubam_match.group('movie') in movies):
         # create a dict to link movie context to uBAM filenames
