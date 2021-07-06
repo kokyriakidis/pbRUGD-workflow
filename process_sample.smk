@@ -77,7 +77,7 @@ include: 'rules/sample_tandem_genotypes.smk'
 if 'tandem-genotypes' in config['sample_targets']:
     # tandem-genotypes tabular output and plots
     targets.extend([f"samples/{sample}/tandem-genotypes/{sample}.tandem-genotypes.{suffix}"
-                   for suffix in ['txt', 'pdf']])
+                   for suffix in ['txt', 'pdf', 'dropouts.txt']])
 
 # calculate coverage of haplotagged sample aBAM with mosdepth
 include: 'rules/sample_mosdepth.smk'
