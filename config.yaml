@@ -20,6 +20,9 @@ cohort_targets:
   - deepvariant_vcf  # req: deepvariant, whatshap in config['sample_targets']
   - slivar  # req: deepvariant, whatshap in config['sample_targets']
 
+# temporary storage
+tmpdir: '/tmp'
+
 # jellyfish and genomescope
 kmer_length: 21
 

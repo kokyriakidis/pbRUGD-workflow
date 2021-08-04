@@ -3,9 +3,9 @@ from pathlib import Path
 from collections import defaultdict
 
 
-shell.prefix("set -o pipefail; umask 002; ")  # set g+w
 configfile: "workflow/reference.yaml"         # reference configuration
 configfile: "workflow/config.yaml"            # general configuration
+shell.prefix(f"set -o pipefail; umask 002; export TMPDIR={config['tmpdir']}; export SINGULARITY_TMPDIR={config['tmpdir']}; ")  # set g+w
 
 ref = config['ref']['shortname']
 
