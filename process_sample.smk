@@ -103,9 +103,9 @@ if 'kmers' in config['sample_targets']:
 include: 'rules/sample_hifiasm.smk'
 if 'assembly' in config['sample_targets']:
     # assembly and stats
-    targets.extend([f"samples/{sample}/hifiasm/{sample}.asm.{infix}.{suffix}"
+    targets.extend([f"samples/{sample}/hifiasm/{sample}.asm.bp.{infix}.{suffix}"
                 for suffix in ['fasta.gz', 'fasta.stats.txt']
-                for infix in ['a_ctg', 'p_ctg']])
+                for infix in ['hap1.p_ctg', 'hap2.p_ctg']])
     # assembly alignments
     targets.extend([f"samples/{sample}/hifiasm/{sample}.asm.{ref}.{suffix}"
                 for suffix in ['bam', 'bam.bai']])

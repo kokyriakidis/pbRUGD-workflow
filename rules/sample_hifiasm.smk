@@ -25,17 +25,12 @@ rule seqtk_fastq_to_fasta:
 rule hifiasm_assemble:
     input: expand(f"samples/{sample}/fasta/{{movie}}.fasta", movie=movies)
     output:
-        a_ctg = temp(f"samples/{sample}/hifiasm/{sample}.asm.a_ctg.gfa"),
-        a_ctg_noseq = f"samples/{sample}/hifiasm/{sample}.asm.a_ctg.noseq.gfa",
-        p_ctg = temp(f"samples/{sample}/hifiasm/{sample}.asm.p_ctg.gfa"),
-        p_ctg_noseq = f"samples/{sample}/hifiasm/{sample}.asm.p_ctg.noseq.gfa",
-        p_utg = temp(f"samples/{sample}/hifiasm/{sample}.asm.p_utg.gfa"),
-        p_utg_noseq = f"samples/{sample}/hifiasm/{sample}.asm.p_utg.noseq.gfa",
-        r_utg = temp(f"samples/{sample}/hifiasm/{sample}.asm.r_utg.gfa"),
-        r_utg_noseq = f"samples/{sample}/hifiasm/{sample}.asm.r_utg.noseq.gfa",
-        ec_bin = temp(f"samples/{sample}/hifiasm/{sample}.asm.ec.bin"),
-        ovlp_rev_bin = temp(f"samples/{sample}/hifiasm/{sample}.asm.ovlp.reverse.bin"),
-        ovlp_src_bin = temp(f"samples/{sample}/hifiasm/{sample}.asm.ovlp.source.bin")
+        temp(f"samples/{sample}/hifiasm/{sample}.asm.bp.hap1.p_ctg.gfa"),
+        f"samples/{sample}/hifiasm/{sample}.asm.bp.hap1.p_ctg.lowQ.bed",
+        f"samples/{sample}/hifiasm/{sample}.asm.bp.hap1.p_ctg.noseq.gfa",
+        temp(f"samples/{sample}/hifiasm/{sample}.asm.bp.hap2.p_ctg.gfa"),
+        f"samples/{sample}/hifiasm/{sample}.asm.bp.hap2.p_ctg.lowQ.bed",
+        f"samples/{sample}/hifiasm/{sample}.asm.bp.hap2.p_ctg.noseq.gfa"
     log: f"samples/{sample}/logs/hifiasm.log"
     benchmark: f"samples/{sample}/benchmarks/hifiasm.tsv"
     conda: "envs/hifiasm.yaml"
@@ -46,20 +41,20 @@ rule hifiasm_assemble:
 
 
 rule gfa2fa:
-    input: f"samples/{sample}/hifiasm/{sample}.asm.{{infix}}.gfa"
-    output: f"samples/{sample}/hifiasm/{sample}.asm.{{infix}}.fasta"
-    log: f"samples/{sample}/logs/gfa2fa/{sample}.asm.{{infix}}.log"
-    benchmark: f"samples/{sample}/benchmarks/gfa2fa/{sample}.asm.{{infix}}.tsv"
+    input: f"samples/{sample}/hifiasm/{sample}.asm.bp.{{infix}}.gfa"
+    output: f"samples/{sample}/hifiasm/{sample}.asm.bp.{{infix}}.fasta"
+    log: f"samples/{sample}/logs/gfa2fa/{sample}.asm.bp.{{infix}}.log"
+    benchmark: f"samples/{sample}/benchmarks/gfa2fa/{sample}.asm.bp.{{infix}}.tsv"
     conda: "envs/gfatools.yaml"
     message: "Extracting fasta from assembly {input}."
     shell: "(gfatools gfa2fa {input} > {output}) 2> {log}"
 
 
 rule bgzip_fasta:
-    input: f"samples/{sample}/hifiasm/{sample}.asm.{{infix}}.fasta"
-    output: f"samples/{sample}/hifiasm/{sample}.asm.{{infix}}.fasta.gz"
-    log: f"samples/{sample}/logs/bgzip/{sample}.asm.{{infix}}.log"
-    benchmark: f"samples/{sample}/benchmarks/bgzip/{sample}.asm.{{infix}}.tsv"
+    input: f"samples/{sample}/hifiasm/{sample}.asm.bp.{{infix}}.fasta"
+    output: f"samples/{sample}/hifiasm/{sample}.asm.bp.{{infix}}.fasta.gz"
+    log: f"samples/{sample}/logs/bgzip/{sample}.asm.bp.{{infix}}.log"
+    benchmark: f"samples/{sample}/benchmarks/bgzip/{sample}.asm.bp.{{infix}}.tsv"
     threads: 4
     conda: "envs/htslib.yaml"
     message: "Compressing {input}."
@@ -67,10 +62,10 @@ rule bgzip_fasta:
 
 
 rule asm_stats:
-    input: f"samples/{sample}/hifiasm/{sample}.asm.{{infix}}.fasta.gz"
-    output: f"samples/{sample}/hifiasm/{sample}.asm.{{infix}}.fasta.stats.txt"
-    log: f"samples/{sample}/logs/asm_stats/{sample}.asm.{{infix}}.fasta.log"
-    benchmark: f"samples/{sample}/benchmarks/asm_stats/{sample}.asm.{{infix}}.fasta.tsv"
+    input: f"samples/{sample}/hifiasm/{sample}.asm.bp.{{infix}}.fasta.gz"
+    output: f"samples/{sample}/hifiasm/{sample}.asm.bp.{{infix}}.fasta.stats.txt"
+    log: f"samples/{sample}/logs/asm_stats/{sample}.asm.bp.{{infix}}.fasta.log"
+    benchmark: f"samples/{sample}/benchmarks/asm_stats/{sample}.asm.bp.{{infix}}.fasta.tsv"
     conda: "envs/k8.yaml"
     message: "Calculating stats for {input}."
     shell: f"(k8 workflow/scripts/calN50/calN50.js -f {config['ref']['index']} {{input}} > {{output}}) > {{log}} 2>&1"
@@ -79,7 +74,8 @@ rule asm_stats:
 rule align_hifiasm:
     input:
         target = config['ref']['fasta'],
-        query = [f"samples/{sample}/hifiasm/{sample}.asm.{infix}.fasta.gz" for infix in ["a_ctg", "p_ctg"]]
+        query = [f"samples/{sample}/hifiasm/{sample}.asm.bp.{infix}.fasta.gz"
+                 for infix in ["hap1.p_ctg", "hap2.p_ctg"]]
     output: f"samples/{sample}/hifiasm/{sample}.asm.{ref}.bam"
     log: f"samples/{sample}/logs/align_hifiasm/{sample}.asm.{ref}.log"
     benchmark: f"samples/{sample}/benchmarks/align_hifiasm/{sample}.asm.{ref}.tsv"
