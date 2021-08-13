@@ -28,7 +28,7 @@ rule smrtcell_summary_stats:
         rqsummary = "samples/{sample}/smrtcell_stats/{movie}.read_quality_summary.tsv"
     message: "Executing {rule}: Summarize read length and quality stats for {wildcards.movie}."
     log: "samples/{sample}/logs/smrtcell_stats/{movie}.summary.log"
-    benchmark: "samples/{sample}/logs/smrtcell_stats/{movie}.summary.tsv"
+    benchmark: "samples/{sample}/benchmarks/smrtcell_stats/{movie}.summary.tsv"
     conda: "envs/smrtcell_stats.yaml"
     shell:
         """
