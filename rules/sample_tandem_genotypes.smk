@@ -41,6 +41,7 @@ rule last_align:
         [f"{config['ref']['last_index']}.{suffix}"
          for suffix in ['bck', 'des', 'prj', 'sds', 'ssp', 'suf', 'tis']],
         bam = f"samples/{sample}/whatshap/{sample}.{ref}.deepvariant.haplotagged.bam",
+        bai = f"samples/{sample}/whatshap/{sample}.{ref}.deepvariant.haplotagged.bam.bai",
         bed = config['ref']['tg_bed'],
         score_matrix = config['score_matrix']
     output: temp(f"samples/{sample}/tandem-genotypes/{sample}.maf.gz")
