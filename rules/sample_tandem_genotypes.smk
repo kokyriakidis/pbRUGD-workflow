@@ -87,6 +87,7 @@ rule tandem_genotypes_plot:
 rule tandem_repeat_coverage_dropouts:
     input:
         bam = f"samples/{sample}/whatshap/{sample}.{ref}.deepvariant.haplotagged.bam",
+        bai = f"samples/{sample}/whatshap/{sample}.{ref}.deepvariant.haplotagged.bam.bai",
         bed = config['ref']['tg_bed']
     output: f"samples/{sample}/tandem-genotypes/{sample}.tandem-genotypes.dropouts.txt"
     log: f"samples/{sample}/logs/tandem-genotypes/{sample}.dropouts.log"
