@@ -181,8 +181,10 @@ rule slivar_tsv:
             --gene-description {input.clinvar_lookup} \
             --gene-description {input.phrank_lookup} \
             --ped {input.ped} \
-            --out {output.filt_tsv} \
-            {input.filt_vcf}
+            --out /dev/stdout \
+            {input.filt_vcf} \
+            | sed '1 s/gene_description_1/lof/;s/gene_description_2/clinvar/;s/gene_description_3/phrank/;' \
+            > {output.filt_tsv}
         slivar tsv \
             {params.info} \
             --sample-field slivar_comphet \
@@ -192,6 +194,8 @@ rule slivar_tsv:
             --gene-description {input.clinvar_lookup} \
             --gene-description {input.phrank_lookup} \
             --ped {input.ped} \
-            --out {output.comphet_tsv} \
-            {input.comphet_vcf}) > {log} 2>&1
+            --out /dev/stdout \
+            {input.comphet_vcf} \
+            | sed '1 s/gene_description_1/lof/;s/gene_description_2/clinvar/;s/gene_description_3/phrank/;' \
+            > {output.comphet_tsv}) > {log} 2>&1
         """

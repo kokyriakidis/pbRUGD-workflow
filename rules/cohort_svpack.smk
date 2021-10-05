@@ -60,6 +60,8 @@ rule slivar_svpack_tsv:
             --gene-description {input.clinvar_lookup} \
             --gene-description {input.phrank_lookup} \
             --ped {input.ped} \
-            --out {output.filt_tsv} \
-            {input.filt_vcf}) > {log} 2>&1
+            --out /dev/stdout \
+            {input.filt_vcf} \
+            | sed '1 s/gene_description_1/lof/;s/gene_description_2/clinvar/;s/gene_description_3/phrank/;' \
+            > {output.filt_tsv}) > {log} 2>&1
         """
