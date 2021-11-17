@@ -41,7 +41,7 @@ hifiasm_assemble:
 bgzip_fasta:
   cpus: 4
 align_hifiasm:
-  cpus: 24
+  cpus: 16
 htsbox_bcftools_stats:
   cpus: 4
 samtools_sam_to_bam:
