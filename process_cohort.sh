@@ -1,4 +1,6 @@
 #!/bin/bash
+#SBATCH -A 100humans
+#SBATCH -p compute
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH --cpus-per-task 4
@@ -24,7 +26,7 @@ snakemake --reason \
     --local-cores 4 \
     --jobs 500 \
     --max-jobs-per-second 1 \
-    --use-conda --conda-frontend conda \
+    --use-conda --conda-frontend mamba \
     --use-singularity --singularity-args '--nv ' \
     --latency-wait 90 \
     --cluster-config workflow/process_cohort.cluster.yaml \
