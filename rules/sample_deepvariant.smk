@@ -179,7 +179,7 @@ rule deepvariant_bcftools_roh:
     message: "Executing {rule}: Calculating runs of homozygosity for {input}."
     shell:
         """
-        (echo -e "chr\tstart\tend\tqual\n" > {output}
+        (echo -e "chr\tstart\tend\tqual" > {output}
         bcftools roh --AF-dflt {params.default_allele_frequency} {input} \
         | awk -v OFS='\t' '$1=="RG" {{ print $3, $4, $5, $8 }} |
         >> {output}) > {log} 2>&1
