@@ -6,11 +6,11 @@ rule jellyfish_merge:
     conda: "envs/jellyfish.yaml"
     message: "Executing {rule}: Merging per-smrtcell jellyfish counts to create {output}."
     shell:
-        """
-        if [[ "{input}"=~\ \ ]]
+        f"""
+        if [[ "{{input}}" =~ " " ]]
         then
-            (jellyfish merge -o {output} {input}) > {log} 2>&1
+            (jellyfish merge -o {{output}} {{input}}) > {{log}} 2>&1
         else
-            ln -s {input} {output}
+            ln -s {movies[0]}.jf {{output}}
         fi
         """
