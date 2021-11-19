@@ -169,4 +169,21 @@ rule deepvariant_bcftools_stats:
     shell: "(bcftools stats --threads 3 {params} {input} > {output}) > {log} 2>&1"
 
 
+rule deepvariant_bcftools_roh:
+    input: f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.vcf.gz"
+    output: f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.roh.bed"
+    log: f"samples/{sample}/logs/bcftools/stats/{sample}.{ref}.deepvariant.vcf.log"
+    benchmark: f"samples/{sample}/benchmarks/bcftools/stats/{sample}.{ref}.deepvariant.vcf.tsv"
+    params: default_allele_frequency = 0.4
+    conda: "envs/bcftools.yaml"
+    message: "Executing {rule}: Calculating runs of homozygosity for {input}."
+    shell:
+        """
+        (echo -e "#chr\tstart\tend\tqual" > {output}
+        bcftools roh --AF-dflt {params.default_allele_frequency} {input} \
+        | awk -v OFS='\t' '$1=="RG" {{ print $3, $4, $5, $8 }}' \
+        >> {output}) > {log} 2>&1
+        """
+
+
 # TODO: cleanup deepvariant intermediates

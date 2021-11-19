@@ -61,7 +61,7 @@ if 'deepvariant' in config['sample_targets']:
     # deepvariant VCFs, gVCFs, reports, and stats
     targets.extend([f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.{suffix}"
                     for suffix in ['vcf.gz', 'vcf.gz.tbi', 'g.vcf.gz', 'g.vcf.gz.tbi',
-                                'visual_report.html', 'vcf.stats.txt']])
+                                   'visual_report.html', 'vcf.stats.txt', 'roh.bed']])
 
 # phase small variants with WhatsHap and haplotag BAM
 include: 'rules/sample_whatshap.smk'
