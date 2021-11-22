@@ -1,7 +1,4 @@
-# All future development will occur at https://github.com/PacificBiosciences/pb-human-wgs-workflow-snakemake.
-
-
-# pbRUGD-workflow
+# PacBio Human WGS Workflow - snakemake implementation
 
 ## Workflow for the comprehensive detection and prioritization of variants in human genomes with PacBio HiFi reads
 
@@ -51,6 +48,13 @@ This repo consists of three [Snakemake](https://snakemake.readthedocs.io/en/stab
   - filter variant calls according to population frequency and inheritance patterns
   - detect possible compound heterozygotes, and filter to remove cis-combinations
   - assign a phenotype rank (Phrank) score, based on [Jagadeesh KA, *et al.* 2019. *Genet Med*.](https://doi.org/10.1038/s41436-018-0072-y)
+
+## Data Resources
+Data resources are available via [`azcopy sync`](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10) at https://pbhumanwgsworkflow.blob.core.windows.net/resources:
+
+```
+azcopy sync https://pbhumanwgsworkflow.blob.core.windows.net/resources .
+```
 
 ## Dependencies
 

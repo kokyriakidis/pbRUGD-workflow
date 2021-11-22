@@ -3,9 +3,9 @@ from pathlib import Path
 from collections import defaultdict
 
 
-shell.prefix("set -o pipefail; umask 002; ")  # set g+w
 configfile: "workflow/reference.yaml"         # reference configuration
 configfile: "workflow/config.yaml"            # general configuration
+shell.prefix(f"set -o pipefail; umask 002; export TMPDIR={config['tmpdir']}; export SINGULARITY_TMPDIR={config['tmpdir']}; ")  # set g+w
 
 ref = config['ref']['shortname']
 
@@ -15,7 +15,7 @@ ubam_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie
 ubam_dict = defaultdict(dict)
 fastq_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}[Ue]?_\d{6}_\d{6}).fastq.gz')
 fastq_dict = defaultdict(dict)
-for infile in Path('smrtcells/ready').glob('**/*.ccs.bam'):
+for infile in Path('smrtcells/ready').glob('**/*.bam'):
     ubam_match = ubam_pattern.search(str(infile))
     if ubam_match:
         # create a dict-of-dict to link samples to movie context to uBAM filenames

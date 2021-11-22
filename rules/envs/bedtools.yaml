@@ -1,7 +1,6 @@
 channels:
   - bioconda
-  - conda-forge
-  - defaults
+  - anaconda
 dependencies:
-  - pysam==0.16.0.1
   - python=3
+  - bedtools==2.27.1

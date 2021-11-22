@@ -2,9 +2,9 @@ import re
 from pathlib import Path
 
 
-shell.prefix("set -o pipefail; umask 002; ")  # set g+w
 configfile: "workflow/reference.yaml"         # reference information
 configfile: "workflow/config.yaml"            # general configuration
+shell.prefix(f"set -o pipefail; umask 002; export TMPDIR={config['tmpdir']}; export SINGULARITY_TMPDIR={config['tmpdir']}; ")  # set g+w
 
 
 # sample will be provided at command line with `--config sample=$SAMPLE`
@@ -32,7 +32,7 @@ ubam_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie
 ubam_dict = {}
 fastq_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}[Ue]?_\d{6}_\d{6}).fastq.gz')
 fastq_dict = {}
-for infile in Path(f'smrtcells/ready/{sample}').glob('*.ccs.bam'):
+for infile in Path(f'smrtcells/ready/{sample}').glob('*.bam'):
     ubam_match = ubam_pattern.search(str(infile))
     if ubam_match and (ubam_match.group('movie') in movies):
         # create a dict to link movie context to uBAM filenames
@@ -61,7 +61,7 @@ if 'deepvariant' in config['sample_targets']:
     # deepvariant VCFs, gVCFs, reports, and stats
     targets.extend([f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.{suffix}"
                     for suffix in ['vcf.gz', 'vcf.gz.tbi', 'g.vcf.gz', 'g.vcf.gz.tbi',
-                                'visual_report.html', 'vcf.stats.txt']])
+                                   'visual_report.html', 'vcf.stats.txt', 'roh.bed']])
 
 # phase small variants with WhatsHap and haplotag BAM
 include: 'rules/sample_whatshap.smk'
@@ -77,7 +77,7 @@ include: 'rules/sample_tandem_genotypes.smk'
 if 'tandem-genotypes' in config['sample_targets']:
     # tandem-genotypes tabular output and plots
     targets.extend([f"samples/{sample}/tandem-genotypes/{sample}.tandem-genotypes.{suffix}"
-                   for suffix in ['txt', 'pdf']])
+                   for suffix in ['txt', 'pdf', 'dropouts.txt']])
 
 # calculate coverage of haplotagged sample aBAM with mosdepth
 include: 'rules/sample_mosdepth.smk'
@@ -103,9 +103,9 @@ if 'kmers' in config['sample_targets']:
 include: 'rules/sample_hifiasm.smk'
 if 'assembly' in config['sample_targets']:
     # assembly and stats
-    targets.extend([f"samples/{sample}/hifiasm/{sample}.asm.{infix}.{suffix}"
+    targets.extend([f"samples/{sample}/hifiasm/{sample}.asm.bp.{infix}.{suffix}"
                 for suffix in ['fasta.gz', 'fasta.stats.txt']
-                for infix in ['a_ctg', 'p_ctg']])
+                for infix in ['hap1.p_ctg', 'hap2.p_ctg']])
     # assembly alignments
     targets.extend([f"samples/{sample}/hifiasm/{sample}.asm.{ref}.{suffix}"
                 for suffix in ['bam', 'bam.bai']])
